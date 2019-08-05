@@ -1,7 +1,7 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Yaroslav Sveshnikov](https://up.htmlacademy.ru/ecmascript/9/user/630421).
-* Наставник: `Неизвестно`.
+* Наставник: [Владимир Коршунов](https://htmlacademy.ru/profile/id83596).
 
 ---
 
