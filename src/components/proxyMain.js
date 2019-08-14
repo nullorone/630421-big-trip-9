@@ -1,9 +1,8 @@
 import {getSortMarkup} from "./sort";
-import {getFormEditEventMarkup} from "./formEditEvent";
 import {getTripDaysListMarkup} from "./tripDays";
 
 
-const getCombineMainMarkup = () => getSortMarkup() + getFormEditEventMarkup() + getTripDaysListMarkup();
+const getCombineMainMarkup = () => getSortMarkup() + getTripDaysListMarkup();
 
 export {getCombineMainMarkup};
 
