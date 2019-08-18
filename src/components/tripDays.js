@@ -1,6 +1,8 @@
 // Размечаем список путешествий
 import {generateTripEvent} from "./tripEvent";
 import {getFormEditEventMarkup} from "./formEditEvent";
+import {getMockEvent} from "../data";
+
 
 const EVENT_COUNT = 3;
 
@@ -13,7 +15,7 @@ const getTripDaysListMarkup = () => `
       </div>
 
       <ul class="trip-events__list">
-        ${getFormEditEventMarkup()}
+        ${getFormEditEventMarkup(getMockEvent())}
         ${generateTripEvent(EVENT_COUNT)}
       </ul>
     </li>

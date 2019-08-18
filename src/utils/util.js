@@ -29,6 +29,7 @@ const getRandomBoolean = () => {
 export {
   renderComponent,
   getShuffleArray,
-  getRandomBoolean
+  getRandomBoolean,
+  getRandomValueOfProps
 };
 

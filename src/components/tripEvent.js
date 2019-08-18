@@ -1,3 +1,5 @@
+import {getMockEvent} from "../data";
+
 // Разметка карточки путешествия
 const getTripEventMarkup = () => `
     <li class="trip-events__item">
@@ -39,6 +41,7 @@ const getTripEventMarkup = () => `
 const generateTripEvent = (count) => {
   let tripEvents = ``;
   for (let i = 0; i < count; i++) {
+    console.log(getMockEvent())
     tripEvents += getTripEventMarkup();
   }
   return tripEvents;
