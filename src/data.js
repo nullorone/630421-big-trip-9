@@ -14,4 +14,23 @@ const getMockMenu = () => {
   ];
 };
 
-export {getMockMenu};
+// Создаем моки для фильтров
+const getMockFilter = () => {
+  return [
+    {
+      filter: `Everything`,
+      checked: getRandomBoolean(),
+    },
+    {
+      filter: `Future`,
+      checked: getRandomBoolean(),
+    },
+    {
+      filter: `Past`,
+      checked: getRandomBoolean(),
+    },
+  ];
+};
+
+
+export {getMockMenu, getMockFilter};
