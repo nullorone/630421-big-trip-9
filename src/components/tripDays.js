@@ -4,9 +4,8 @@ import {getFormEditEventMarkup} from "./formEditEvent";
 import {getMockEvent} from "../data";
 
 
-const EVENT_COUNT = 3;
 
-const getTripDaysListMarkup = () => `
+const getTripDaysListMarkup = (events) => `
 <ul class="trip-days">
     <li class="trip-days__item  day">
       <div class="day__info">
@@ -15,8 +14,8 @@ const getTripDaysListMarkup = () => `
       </div>
 
       <ul class="trip-events__list">
-        ${getFormEditEventMarkup(getMockEvent())}
-        ${generateTripEvent(EVENT_COUNT)}
+        ${getFormEditEventMarkup(getMockEvent(events.slice(0, 1)))}
+        ${generateTripEvent(events.slice(1))}
       </ul>
     </li>
 </ul>

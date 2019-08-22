@@ -1,4 +1,4 @@
-import {getRandomBoolean, getShuffleArray, getRandomValueOfProps, getDayTime, getRandomImage} from "./utils/util";
+import {getShuffleArray, getRandomValueOfProps, getDayTime, getRandomImage} from "./utils/util";
 
 const DESCRIPTION_TEXTS = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
@@ -27,11 +27,10 @@ const getMockEvent = () => ({
   city: [`Auckland`, `Hamilton`, `Tauranga`],
   img: new Array(IMAGE_AMOUNT).fill(``).map(getRandomImage),
   description: getShuffleArray(DESCRIPTION_TEXTS).slice(DescriptionItem.BEGIN, getRandomValueOfProps(DescriptionItem.END)),
-  days: new Array(3).fill(new Date(getDayTime())),
-  time: new Array(3).fill(new Date(getDayTime())),
+  day: getDayTime(),
+  time: getDayTime(),
   price: getRandomValueOfProps(200),
 });
-
 
 
 

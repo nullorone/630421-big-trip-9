@@ -1,11 +1,12 @@
 // Разметка формы редактирования события путешествия
 const getFormEditEventMarkup = ({
   type,
+  city,
   price,
   img,
+  day,
   time,
-  description = `Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.`
-}) => `
+  description = `Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.`}) => `
 <li class="trip-events__item">
     <form class="event  event--edit" action="#" method="post">
       <header class="event__header">
@@ -93,12 +94,12 @@ const getFormEditEventMarkup = ({
           <label class="visually-hidden" for="event-start-time-1">
             From
           </label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="18/03/19 ${time}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="18/03/19 ${new Date(time).toTimeString()}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">
             To
           </label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="18/03/19 ${time}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="18/03/19 ${new Date(time).toTimeString()}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
