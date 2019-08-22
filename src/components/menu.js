@@ -1,4 +1,19 @@
-import {getMockMenu} from "../data";
+import {getRandomBoolean} from "../utils/util";
+
+const generateMenu = (title, active = getRandomBoolean()) => {
+  return {
+    title,
+    active,
+  };
+};
+
+// Создаем моки для меню
+const getMockMenu = () => {
+  return [
+    generateMenu(`Table`),
+    generateMenu(`Stats`)
+  ];
+};
 
 // Разметка меню
 const getTripMenuMarkup = () => `

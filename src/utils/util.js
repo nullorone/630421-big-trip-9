@@ -1,3 +1,9 @@
+const DAY_IN_WEEK = 7;
+const HOURS_IN_DAY = 24;
+const MINUTES_IN_HOUR = 60;
+const SECONDS_IN_MINUTE = 60;
+const MILLISECONDS_IN_SECOND = 1000;
+
 // Рендерим компонент
 const renderComponent = (elementContainer, markup, where = `afterend`) => {
   return elementContainer.insertAdjacentHTML(where, markup);
@@ -26,10 +32,16 @@ const getRandomBoolean = () => {
   return Boolean(Math.round(Math.random()));
 };
 
+const getDayTime = () => Date.now() + 1 + getRandomValueOfProps(DAY_IN_WEEK) * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
+
+const getRandomImage = () => `http://picsum.photos/300/150?r=${Math.random()}`;
+
 export {
   renderComponent,
   getShuffleArray,
   getRandomBoolean,
-  getRandomValueOfProps
+  getRandomValueOfProps,
+  getDayTime,
+  getRandomImage
 };
 
