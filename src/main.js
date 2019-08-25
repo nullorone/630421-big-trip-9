@@ -9,7 +9,6 @@ import {getMockEvent} from "./data";
 const EVENT_COUNT = 4;
 
 const events = new Array(EVENT_COUNT).fill(``).map(getMockEvent);
-console.log(events)
 
 const tripInfo = document.querySelector(`.trip-info`);
 const tripControls = document.querySelector(`.trip-controls > h2:first-child`);
@@ -17,7 +16,7 @@ const tripFilters = document.querySelector(`.trip-controls > h2:last-child`);
 const tripEvents = document.querySelector(`.trip-events > h2`);
 
 const renderLayout = () => {
-  renderComponent(tripInfo, getTripInfoMarkup(), `afterbegin`);
+  renderComponent(tripInfo, getTripInfoMarkup(events), `afterbegin`);
   renderComponent(tripControls, getTripMenuMarkup());
   renderComponent(tripFilters, getTripFilterMarkup());
   renderComponent(tripEvents, getSortMarkup() + getTripDaysListMarkup(events));
