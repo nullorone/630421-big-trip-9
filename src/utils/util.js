@@ -36,12 +36,15 @@ const getDayTime = () => Date.now() + 1 + getRandomValueOfProps(DAY_IN_WEEK) * H
 
 const getRandomImage = () => `http://picsum.photos/300/150?r=${Math.random()}`;
 
+const getSortEventList = (a, b) => a.time.timeStartEvent - b.time.timeStartEvent;
+
 export {
   renderComponent,
   getShuffleArray,
   getRandomBoolean,
   getRandomValueOfProps,
   getDayTime,
-  getRandomImage
+  getRandomImage,
+  getSortEventList,
 };
 
