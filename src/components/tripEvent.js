@@ -54,7 +54,8 @@ const getTripEventMarkup = ({
           </button>
         </div>
       </li>
-`;};
+`;
+};
 
 const generateTripEvent = (events) => {
   let tripEvents = [];

@@ -9,6 +9,7 @@ const getTripInfoMarkup = (events) => {
     `<h1 class="trip-info__title">${firstDayCities.join(`-`)}</h1>`}
     <p class="trip-info__dates">${new Date(timeStartEvent).toDateString().substr(4, 6)}&nbsp;&mdash;&nbsp;${new Date(timeFinishEvent).toDateString().substr(4, 6)}</p>
   </div>
-`;};
+`;
+};
 
 export {getTripInfoMarkup};
