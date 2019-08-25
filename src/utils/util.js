@@ -11,7 +11,7 @@ const renderComponent = (elementContainer, markup, where = `afterend`) => {
 
 // Случайное значение от 0 до передаваемого
 const getRandomValueOfProps = (number) => {
-  return Math.floor(Math.random() * number);
+  return Math.round(Math.random() * number);
 };
 
 // Перемешиваем элементы в массиве
