@@ -14,14 +14,14 @@ const DESCRIPTION_TEXTS = [
   `In rutrum ac purus sit amet tempus.`
 ];
 
+const IMAGE_AMOUNT = 4;
+const OFFER_AMOUNT = 2;
+const TIME_RANGE = 10000000;
+
 const DescriptionItem = {
   BEGIN: 0,
   END: 3,
 };
-
-const IMAGE_AMOUNT = 4;
-const OFFER_AMOUNT = 2;
-const TIME_RANGE = 10000000;
 
 const offers = [
   {
