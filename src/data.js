@@ -1,4 +1,4 @@
-import {getShuffleArray, getRandomValueOfProps, getDayTime, getRandomImage, getRandomBoolean} from "./utils/util";
+import {getShuffleArray, getRandomNumber, getDayTime, getRandomImage, getRandomBoolean} from "./utils/util";
 
 const DESCRIPTION_TEXTS = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
@@ -18,70 +18,65 @@ const IMAGE_AMOUNT = 4;
 const OFFER_AMOUNT = 2;
 const TIME_RANGE = 10000000;
 
-const DescriptionItem = {
-  BEGIN: 0,
-  END: 3,
-};
-
 const offers = [
   {
     id: `luggage`,
     title: `Add luggage`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `comfort`,
     title: `Switch to comfort class`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `meal`,
     title: `Add meal`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `seats`,
     title: `Choose seats`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `train`,
     title: `Travel by train`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `tickets`,
     title: `Book tickets`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `lunch`,
     title: `Lunch in city`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `breakfast`,
     title: `Add breakfast`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `car`,
     title: `Rent a car`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
     id: `uber`,
     title: `Order Uber`,
-    price: getRandomValueOfProps(100),
+    price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   }
 ];
@@ -136,16 +131,16 @@ const types = [
 ];
 
 const getRandomOffer = () => {
-  return offers[getRandomValueOfProps(offers.length - 1)];
+  return offers[getRandomNumber(0, offers.length - 1)];
 };
 
 const getOffers = () => {
-  return new Array(getRandomValueOfProps(OFFER_AMOUNT)).fill(``).map(getRandomOffer);
+  return new Array(getRandomNumber(0, OFFER_AMOUNT)).fill(``).map(getRandomOffer);
 };
 
 const getTime = () => {
-  const timeStartEvent = getDayTime() + getRandomValueOfProps(TIME_RANGE);
-  const timeFinishEvent = timeStartEvent + getRandomValueOfProps(TIME_RANGE);
+  const timeStartEvent = getDayTime() + getRandomNumber(0, TIME_RANGE);
+  const timeFinishEvent = timeStartEvent + getRandomNumber(0, TIME_RANGE);
   const diffTime = Math.abs(timeFinishEvent - timeStartEvent);
 
   let minutes = Math.floor(diffTime / 1000 / 60) % 60;
@@ -167,14 +162,23 @@ const getTime = () => {
   };
 };
 
+const getRandomDescription = () => {
+  const randomDescriptionLength = getRandomNumber(1, 4);
+  let description = [];
+  for (let i = 0; i < randomDescriptionLength; i++) {
+    description.push(DESCRIPTION_TEXTS[getRandomNumber(0, DESCRIPTION_TEXTS.length)]);
+  }
+  return description.join(` `);
+};
+
 // Создаем моки точки маршрута
 const getMockEvent = () => ({
   types: new Set(types),
   cities: [`Auckland`, `Hamilton`, `Wellington`, `Christchurch`, `Tauranga`],
   img: new Array(IMAGE_AMOUNT).fill(``).map(getRandomImage),
-  description: getShuffleArray(DESCRIPTION_TEXTS).slice(DescriptionItem.BEGIN, getRandomValueOfProps(DescriptionItem.END)),
+  description: getRandomDescription(),
   time: getTime(),
-  price: getRandomValueOfProps(200),
+  price: getRandomNumber(0, 200),
   offers: new Set(getOffers()),
 });
 
