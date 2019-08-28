@@ -9,9 +9,9 @@ const renderComponent = (elementContainer, markup, where = `afterend`) => {
   return elementContainer.insertAdjacentHTML(where, markup);
 };
 
-// Случайное значение от 0 до передаваемого
-const getRandomValueOfProps = (number) => {
-  return Math.round(Math.random() * number);
+// Случайное число
+const getRandomNumber = (min, max) => {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 // Перемешиваем элементы в массиве
@@ -42,7 +42,7 @@ export {
   renderComponent,
   getShuffleArray,
   getRandomBoolean,
-  getRandomValueOfProps,
+  getRandomNumber,
   getDayTime,
   getRandomImage,
   getSortEventList,

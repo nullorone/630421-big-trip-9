@@ -1,5 +1,5 @@
 // Разметка формы редактирования события путешествия
-import {getRandomValueOfProps} from "../utils/util";
+import {getRandomNumber} from "../utils/util";
 
 const getFormEditEventMarkup = ({
   types: [{transfer, activity}],
@@ -12,7 +12,7 @@ const getFormEditEventMarkup = ({
   },
   offers,
   description = `Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.`}) => {
-  const randomType = [...transfer][getRandomValueOfProps([...transfer].length - 1)];
+  const randomType = [...transfer][getRandomNumber(0, [...transfer].length - 1)];
   const {iconName, title} = randomType;
   return `
 <li class="trip-events__item">
@@ -53,7 +53,7 @@ const getFormEditEventMarkup = ({
           <label class="event__label  event__type-output" for="event-destination-1">
             ${title}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cities[getRandomValueOfProps(cities.length - 1)]}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cities[getRandomNumber(0, cities.length - 1)]}" list="destination-list-1">
           <datalist id="destination-list-1">
           ${cities.map((city) => `<option value="${city}"></option>`)}
           </datalist>

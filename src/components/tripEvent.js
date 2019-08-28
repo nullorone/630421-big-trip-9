@@ -1,5 +1,5 @@
 // Разметка карточки путешествия
-import {getRandomValueOfProps} from "../utils/util";
+import {getRandomNumber} from "../utils/util";
 
 const getTripEventMarkup = ({
   types: [{transfer, activity}],
@@ -15,7 +15,7 @@ const getTripEventMarkup = ({
     }
   }}) => {
   const combineTypes = [...transfer, ...activity];
-  const randomType = combineTypes[getRandomValueOfProps(combineTypes.length - 1)];
+  const randomType = combineTypes[getRandomNumber(0, combineTypes.length - 1)];
   const {iconName, title} = randomType;
   return `
     <li class="trip-events__item">
