@@ -1,26 +1,26 @@
-import {getRandomBoolean} from "../utils/util";
-
-const generateFilter = (title, active = getRandomBoolean()) => {
-  return {
-    title,
-    active,
-  };
-};
-
 // Создаем моки для фильтров
 const getMockFilter = () => {
   return [
-    generateFilter(`Everything`),
-    generateFilter(`Future`),
-    generateFilter(`Past`)
+    {
+      title: `Everything`,
+      isActive: true,
+    },
+    {
+      title: `Future`,
+      isActive: false,
+    },
+    {
+      title: `Past`,
+      isActive: false,
+    }
   ];
 };
 
 // Разметка фильтров
 const getTripFilterMarkup = () => `
   <form class="trip-filters" action="#" method="get">
-  ${getMockFilter().map(({title, active}) => `<div class="trip-filters__filter">
-      <input id="filter-${title.toLowerCase()}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${title.toLowerCase()}" ${active ? `checked` : ``}>
+  ${getMockFilter().map(({title, isActive}) => `<div class="trip-filters__filter">
+      <input id="filter-${title.toLowerCase()}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${title.toLowerCase()}" ${isActive ? `checked` : ``}>
       <label class="trip-filters__filter-label" for="filter-${title.toLowerCase()}">${title}</label>
     </div>`).join(``)}
     <button class="visually-hidden" type="submit">Accept filter</button>
