@@ -1,4 +1,4 @@
-import {getShuffleArray, getRandomNumber, getDayTime, getRandomImage, getRandomBoolean} from "./utils/util";
+import {getRandomNumber, getDayTime, getRandomImage, getRandomBoolean} from "./utils/util";
 
 const DESCRIPTION_TEXTS = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
@@ -17,6 +17,8 @@ const DESCRIPTION_TEXTS = [
 const IMAGE_AMOUNT = 4;
 const OFFER_AMOUNT = 2;
 const TIME_RANGE = 10000000;
+
+const CITIES = [`Auckland`, `Hamilton`, `Wellington`, `Christchurch`, `Tauranga`];
 
 const offers = [
   {
@@ -130,6 +132,7 @@ const types = [
   }
 ];
 
+
 const getRandomOffer = () => {
   return offers[getRandomNumber(0, offers.length - 1)];
 };
@@ -176,10 +179,14 @@ const getRandomType = () => {
   return [...transfer, ...activity][getRandomNumber(0, [...transfer, ...activity].length)];
 };
 
+const getRandomCity = () => {
+  return CITIES[getRandomNumber(0, CITIES.length - 1)];
+};
+
 // Создаем моки точки маршрута
 const getMockEvent = () => ({
   type: getRandomType(),
-  cities: [`Auckland`, `Hamilton`, `Wellington`, `Christchurch`, `Tauranga`],
+  city: getRandomCity(),
   img: new Array(IMAGE_AMOUNT).fill(``).map(getRandomImage),
   description: getRandomDescription(),
   time: getTime(),
@@ -188,4 +195,4 @@ const getMockEvent = () => ({
 });
 
 
-export {getMockEvent, types};
+export {getMockEvent, types, CITIES};

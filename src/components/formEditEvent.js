@@ -1,10 +1,9 @@
 // Разметка формы редактирования события путешествия
-import {getRandomNumber} from "../utils/util";
-import {types} from "../data";
+import {types, CITIES} from "../data";
 
 const getFormEditEventMarkup = ({
   type: {iconName, title},
-  cities,
+  city,
   price,
   img,
   time: {
@@ -53,9 +52,9 @@ const getFormEditEventMarkup = ({
           <label class="event__label  event__type-output" for="event-destination-1">
             ${title}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cities[getRandomNumber(0, cities.length - 1)]}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city}" list="destination-list-1">
           <datalist id="destination-list-1">
-          ${cities.map((city) => `<option value="${city}"></option>`)}
+          ${CITIES.map((cityItem) => `<option value="${cityItem}"></option>`)}
           </datalist>
         </div>
 
