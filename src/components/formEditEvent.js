@@ -1,6 +1,6 @@
 // Разметка формы редактирования события путешествия
 import {types, CITIES} from "../data";
-
+let hasEventEdit = false;
 const getFormEditEventMarkup = ({
   type: {iconName, title},
   city,
@@ -12,6 +12,7 @@ const getFormEditEventMarkup = ({
   },
   offers,
   description = `Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.`}) => {
+  hasEventEdit = true;
   const [{transfer, activity}] = types;
   return `
 <li class="trip-events__item">
@@ -129,4 +130,4 @@ const getFormEditEventMarkup = ({
 `;
 };
 
-export {getFormEditEventMarkup};
+export {getFormEditEventMarkup, hasEventEdit};

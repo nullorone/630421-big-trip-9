@@ -6,7 +6,7 @@ import {getSortMarkup} from "./components/sort";
 import {getTripDaysListMarkup} from "./components/tripDays";
 import {getMockEvent} from "./data";
 
-const EVENT_COUNT = 4;
+const EVENT_COUNT = 7;
 
 const events = new Array(EVENT_COUNT).fill(``).map(getMockEvent);
 

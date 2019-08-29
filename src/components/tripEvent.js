@@ -52,12 +52,4 @@ const getTripEventMarkup = ({
 `;
 };
 
-const generateTripEvent = (events) => {
-  let tripEvents = [];
-  for (const event of events) {
-    tripEvents.push(getTripEventMarkup(event));
-  }
-  return tripEvents.join(``);
-};
-
-export {generateTripEvent};
+export {getTripEventMarkup};
