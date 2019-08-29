@@ -9,15 +9,12 @@ const getTripDaysListMarkup = (events) => {
     const filteredEvents = events.filter((event) => new Date(event.time.timeStartEvent).toDateString() === time);
     return [time, filteredEvents];
   });
-  let countDay = 0;
   return `
 <ul class="trip-days">
-    ${days.map(([dayTime, dayEvents], index) => {
-    if (dayEvents.length) {
-      return `
+    ${days.map(([dayTime, dayEvents], index) => `
         <li class="trip-days__item  day">
           <div class="day__info">
-            <span class="day__counter">${index + 1 + countDay}</span>
+            <span class="day__counter">${index + 1}</span>
             <time class="day__date" datetime="${new Date(dayTime).toISOString().substr(0, 10)}">${new Date(dayTime).toDateString().substr(4, 6)}</time>
           </div>
     
@@ -25,12 +22,7 @@ const getTripDaysListMarkup = (events) => {
             ${hasEventEdit ? getTripEventMarkup(dayEvents[0]) : getFormEditEventMarkup(dayEvents[0])}
             ${dayEvents.slice(1).map(getTripEventMarkup).join(``)}
           </ul>
-        </li>`.trim();
-    } else {
-      countDay++;
-      return ``;
-    }
-  }).join(``)}
+        </li>`.trim()).join(``)}
 </ul>`;
 };
 
