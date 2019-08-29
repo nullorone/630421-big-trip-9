@@ -171,9 +171,14 @@ const getRandomDescription = () => {
   return description.join(` `);
 };
 
+const getRandomType = () => {
+  const [{transfer, activity}] = new Set(types);
+  return [...transfer, ...activity][getRandomNumber(0, [...transfer, ...activity].length)];
+};
+
 // Создаем моки точки маршрута
 const getMockEvent = () => ({
-  types: new Set(types),
+  type: getRandomType(),
   cities: [`Auckland`, `Hamilton`, `Wellington`, `Christchurch`, `Tauranga`],
   img: new Array(IMAGE_AMOUNT).fill(``).map(getRandomImage),
   description: getRandomDescription(),
@@ -183,4 +188,4 @@ const getMockEvent = () => ({
 });
 
 
-export {getMockEvent};
+export {getMockEvent, types};

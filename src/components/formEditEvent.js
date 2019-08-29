@@ -1,8 +1,9 @@
 // Разметка формы редактирования события путешествия
 import {getRandomNumber} from "../utils/util";
+import {types} from "../data";
 
 const getFormEditEventMarkup = ({
-  types: [{transfer, activity}],
+  type: {iconName, title},
   cities,
   price,
   img,
@@ -12,8 +13,7 @@ const getFormEditEventMarkup = ({
   },
   offers,
   description = `Geneva is a city in Switzerland that lies at the southern tip of expansive Lac Léman (Lake Geneva). Surrounded by the Alps and Jura mountains, the city has views of dramatic Mont Blanc.`}) => {
-  const randomType = [...transfer][getRandomNumber(0, [...transfer].length - 1)];
-  const {iconName, title} = randomType;
+  const [{transfer, activity}] = types;
   return `
 <li class="trip-events__item">
     <form class="event  event--edit" action="#" method="post">
