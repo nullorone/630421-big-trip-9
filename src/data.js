@@ -87,44 +87,54 @@ const types = [
   {
     transfer: [
       {
+        id: `bus-to`,
         iconName: `bus`,
         title: `Bus to`,
       },
       {
+        id: `drive-to`,
         iconName: `drive`,
         title: `Drive to`,
       },
       {
+        id: `flight-to`,
         iconName: `flight`,
         title: `Flight to`,
       },
       {
+        id: `ship-to`,
         iconName: `ship`,
         title: `Ship to`,
       },
       {
+        id: `taxi-to`,
         iconName: `taxi`,
         title: `Taxi to`,
       },
       {
+        id: `train-to`,
         iconName: `train`,
         title: `Train to`,
       },
       {
+        id: `transport-to`,
         iconName: `transport`,
         title: `Transport to`,
       }
     ],
     activity: [
       {
+        id: `check-in`,
         iconName: `check-in`,
         title: `Check in`,
       },
       {
+        id: `sightseeing-at`,
         iconName: `sightseeing`,
         title: `Sightseeing at`,
       },
       {
+        id: `eat-at`,
         iconName: `restaurant`,
         title: `Eat at`,
       }

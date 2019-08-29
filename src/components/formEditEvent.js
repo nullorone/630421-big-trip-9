@@ -28,20 +28,20 @@ const getFormEditEventMarkup = ({
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Transfer</legend>
               
-              ${[...transfer].map(({title: transferTitle}) => `
+              ${[...transfer].map(({id: transferId, title: transferTitle}, index) => `
               <div class="event__type-item">
-                <input id="event-type-${transferTitle.split(` `).join(`-`).toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${transferTitle.split(` `).join(`-`).toLowerCase()}">
-                <label class="event__type-label  event__type-label--${transferTitle.split(` `).join(`-`).toLowerCase()}" for="event-type-${transferTitle.split(` `).join(`-`).toLowerCase()}-1">${transferTitle}</label>
+                <input id="event-type-${transferId}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${transferId}">
+                <label class="event__type-label  event__type-label--${transferId}" for="event-type-${transferId}-${index}">${transferTitle}</label>
               </div>
               `).join(``)}
             </fieldset>
 
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Activity</legend>
-              ${[...activity].map(({title: activityTitle}) => `
+              ${[...activity].map(({id: activityId, title: activityTitle}, index) => `
               <div class="event__type-item">
-                <input id="event-type-${activityTitle.split(` `).join(`-`).toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${activityTitle.split(` `).join(`-`).toLowerCase()}">
-                <label class="event__type-label  event__type-label--${activityTitle.split(` `).join(`-`).toLowerCase()}" for="event-type-${activityTitle.split(` `).join(`-`).toLowerCase()}-1">${activityTitle}</label>
+                <input id="event-type-${activityId}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${activityId}">
+                <label class="event__type-label  event__type-label--${activityId}" for="event-type-${activityId}-${index}">${activityTitle}</label>
               </div>
               `).join(``)}
             </fieldset>
