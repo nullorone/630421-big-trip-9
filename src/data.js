@@ -176,7 +176,7 @@ const getRandomDescription = () => {
 
 const getRandomType = () => {
   const [{transfer, activity}] = new Set(types);
-  return [...transfer, ...activity][getRandomNumber(0, [...transfer, ...activity].length)];
+  return [...transfer, ...activity][getRandomNumber(0, [...transfer, ...activity].length - 1)];
 };
 
 const getRandomCity = () => {
