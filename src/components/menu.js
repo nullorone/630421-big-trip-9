@@ -1,25 +1,23 @@
-import {getRandomBoolean} from "../utils/util";
+import {createElement} from "../utils/util";
 
-const generateMenu = (title, active = getRandomBoolean()) => {
-  return {
-    title,
-    active,
-  };
-};
+export default class Menu {
+  constructor(menuItems) {
+    this._menuItems = menuItems;
+    this._element = null;
+  }
 
-// Создаем моки для меню
-const getMockMenu = () => {
-  return [
-    generateMenu(`Table`),
-    generateMenu(`Stats`)
-  ];
-};
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
 
-// Разметка меню
-const getTripMenuMarkup = () => `
+  getTemplate() {
+    return `
         <nav class="trip-controls__trip-tabs  trip-tabs">
-        ${getMockMenu().map(({title, active}) => `<a class="trip-tabs__btn ${active ? `trip-tabs__btn--active` : ``}" href="#">${title}</a>`).join(``)}
-        </nav>
-`;
+        ${this._menuItems.map(({title, isActive}) => `<a class="trip-tabs__btn ${isActive ? `trip-tabs__btn--active` : ``}" href="#">${title}</a>`).join(``)}
+        </nav>`.trim();
+  }
+}
 
-export {getTripMenuMarkup};
