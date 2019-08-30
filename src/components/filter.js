@@ -1,31 +1,33 @@
-// Создаем моки для фильтров
-const getMockFilter = () => {
-  return [
-    {
-      title: `Everything`,
-      isActive: true,
-    },
-    {
-      title: `Future`,
-      isActive: false,
-    },
-    {
-      title: `Past`,
-      isActive: false,
+import {createElement} from "../utils/util";
+
+export default class Filter {
+  constructor(filters) {
+    this._filters = filters;
+    this._element = null;
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
     }
-  ];
-};
+    return this._element;
+  }
 
-// Разметка фильтров
-const getTripFilterMarkup = () => `
-  <form class="trip-filters" action="#" method="get">
-  ${getMockFilter().map(({title, isActive}) => `<div class="trip-filters__filter">
-      <input id="filter-${title.toLowerCase()}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${title.toLowerCase()}" ${isActive ? `checked` : ``}>
-      <label class="trip-filters__filter-label" for="filter-${title.toLowerCase()}">${title}</label>
-    </div>`).join(``)}
-    <button class="visually-hidden" type="submit">Accept filter</button>
-  </form>
-`;
+  _generateFilters() {
+    return this._filters.map(({title, isActive}) => {
+      return `
+        <div class="trip-filters__filter">
+          <input id="filter-${title.toLowerCase()}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${title.toLowerCase()}" ${isActive ? `checked` : ``}>
+          <label class="trip-filters__filter-label" for="filter-${title.toLowerCase()}">${title}</label>
+        </div>`.trim();
+    }).join(``);
+  }
 
-export {getTripFilterMarkup};
-
+  getTemplate() {
+    return `
+      <form class="trip-filters" action="#" method="get">
+        ${this._generateFilters()}
+        <button class="visually-hidden" type="submit">Accept filter</button>
+      </form>`.trim();
+  }
+}
