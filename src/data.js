@@ -153,6 +153,21 @@ const menuTitles = [
   }
 ];
 
+// Создаем моки для фильтров
+const filters = [
+  {
+    title: `Everything`,
+    isActive: true,
+  },
+  {
+    title: `Future`,
+    isActive: false,
+  },
+  {
+    title: `Past`,
+    isActive: false,
+  }
+];
 
 const getRandomOffer = () => {
   return offers[getRandomNumber(0, offers.length - 1)];
@@ -216,4 +231,4 @@ const getMockEvent = () => ({
 });
 
 
-export {getMockEvent, types, CITIES, menuTitles};
+export {getMockEvent, types, CITIES, menuTitles, filters};
