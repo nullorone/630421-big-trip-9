@@ -142,6 +142,17 @@ const types = [
   }
 ];
 
+const menuTitles = [
+  {
+    title: `Table`,
+    isActive: true,
+  },
+  {
+    title: `Stats`,
+    isActive: false,
+  }
+];
+
 
 const getRandomOffer = () => {
   return offers[getRandomNumber(0, offers.length - 1)];
@@ -205,4 +216,4 @@ const getMockEvent = () => ({
 });
 
 
-export {getMockEvent, types, CITIES};
+export {getMockEvent, types, CITIES, menuTitles};
