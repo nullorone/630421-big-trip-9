@@ -5,8 +5,15 @@ const SECONDS_IN_MINUTE = 60;
 const MILLISECONDS_IN_SECOND = 1000;
 
 // Рендерим компонент
-const renderComponent = (elementContainer, markup, where = `afterend`) => {
-  return elementContainer.insertAdjacentHTML(where, markup);
+const renderComponent = (elementContainer, element, where = `afterend`) => {
+  return elementContainer.insertAdjacentElement(where, element);
+};
+
+// Анрендер компонента
+const unrenderComponent = (element) => {
+  if (element) {
+    element.remove();
+  }
 };
 
 // Случайное число
@@ -38,13 +45,21 @@ const getRandomImage = () => `http://picsum.photos/300/150?r=${Math.random()}`;
 
 const getSortEventList = (a, b) => a.time.timeStartEvent - b.time.timeStartEvent;
 
+const createElement = (template) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = template;
+  return newElement.firstChild;
+};
+
 export {
   renderComponent,
+  unrenderComponent,
   getShuffleArray,
   getRandomBoolean,
   getRandomNumber,
   getDayTime,
   getRandomImage,
   getSortEventList,
+  createElement,
 };
 
