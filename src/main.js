@@ -1,4 +1,4 @@
-import {renderComponent, getSortEventList} from "./utils/util";
+import {renderComponent, getSortEventList, unrenderComponent} from "./utils/util";
 import {getMockEvent, menuTitles, filters} from "./data";
 import Menu from "./components/menu";
 import Filter from "./components/filter";
@@ -20,12 +20,18 @@ const tripControls = document.querySelector(`.trip-controls > h2:first-child`);
 const tripFilters = document.querySelector(`.trip-controls > h2:last-child`);
 const tripEvents = document.querySelector(`.trip-events > h2`);
 
+const menu = new Menu(menuTitles);
+const days = new Days(getSortEvents());
+const info = new Info(getSortEvents());
+const filter = new Filter(filters);
+const sort = new Sort();
+
 const renderLayout = () => {
-  renderComponent(tripInfo, new Info(getSortEvents()).getElement(), `afterbegin`);
-  renderComponent(tripControls, new Menu(menuTitles).getElement());
-  renderComponent(tripFilters, new Filter(filters).getElement());
-  renderComponent(tripEvents, new Days(getSortEvents()).getElement());
-  renderComponent(tripEvents, new Sort().getElement());
+  renderComponent(tripInfo, info.getElement(), `afterbegin`);
+  renderComponent(tripControls, menu.getElement());
+  renderComponent(tripFilters, filter.getElement());
+  renderComponent(tripEvents, days.getElement());
+  renderComponent(tripEvents, sort.getElement());
 };
 
 renderLayout();
