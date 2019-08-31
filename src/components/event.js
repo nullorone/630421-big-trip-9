@@ -38,6 +38,10 @@ export default class Event {
     return this._element;
   }
 
+  removeElement() {
+    this._element = null;
+  }
+
   getFormattingIsoTime(time) {
     return new Date(time).toISOString().substr(0, 16);
   }

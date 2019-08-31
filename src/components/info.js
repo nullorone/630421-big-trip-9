@@ -16,6 +16,10 @@ export default class Info {
     return this._element;
   }
 
+  removeElement() {
+    this._element = null;
+  }
+
   getCitiesEvents() {
     const cities = this._events.map(({city}) => city);
     return cities.length <= 3 ? cities.join(`-`) : cities;

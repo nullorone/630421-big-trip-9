@@ -36,6 +36,10 @@ export default class EventEdit {
     return this._element;
   }
 
+  removeElement() {
+    this._element = null;
+  }
+
   getEventGroup(nameGroup) {
     return [...nameGroup].map(({id, title}, index) => `
               <div class="event__type-item">

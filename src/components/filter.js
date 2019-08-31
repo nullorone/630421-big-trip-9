@@ -13,6 +13,10 @@ export default class Filter {
     return this._element;
   }
 
+  removeElement() {
+    this._element = null;
+  }
+
   _generateFilters() {
     return this._filters.map(({title, isActive}) => {
       return `
