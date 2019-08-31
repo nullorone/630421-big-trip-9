@@ -1,10 +1,10 @@
-import {getTripInfoMarkup} from './components/tripInfo';
-import {getTripMenuMarkup} from './components/menu';
-import {getTripFilterMarkup} from "./components/filter";
 import {renderComponent, getSortEventList} from "./utils/util";
-import {getSortMarkup} from "./components/sort";
-import {getTripDaysListMarkup} from "./components/tripDays";
-import {getMockEvent} from "./data";
+import {getMockEvent, menuTitles, filters} from "./data";
+import Menu from "./components/menu";
+import Filter from "./components/filter";
+import Info from "./components/info";
+import Sort from "./components/sort";
+import Days from "./components/days";
 
 const EVENT_COUNT = 7;
 
@@ -21,10 +21,11 @@ const tripFilters = document.querySelector(`.trip-controls > h2:last-child`);
 const tripEvents = document.querySelector(`.trip-events > h2`);
 
 const renderLayout = () => {
-  renderComponent(tripInfo, getTripInfoMarkup(getSortEvents()), `afterbegin`);
-  renderComponent(tripControls, getTripMenuMarkup());
-  renderComponent(tripFilters, getTripFilterMarkup());
-  renderComponent(tripEvents, getSortMarkup() + getTripDaysListMarkup(getSortEvents()));
+  renderComponent(tripInfo, new Info(getSortEvents()).getElement(), `afterbegin`);
+  renderComponent(tripControls, new Menu(menuTitles).getElement());
+  renderComponent(tripFilters, new Filter(filters).getElement());
+  renderComponent(tripEvents, new Days(getSortEvents()).getElement());
+  renderComponent(tripEvents, new Sort().getElement());
 };
 
 renderLayout();
