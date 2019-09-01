@@ -76,7 +76,7 @@ export default class EventEdit {
     return this._img.map((src) => `<img class="event__photo" src="${src}" alt="Event photo">`.trim()).join(``);
   }
 
-  getDesctinationList() {
+  getDestinationList() {
     return CITIES.map((cityItem) => `<option value="${cityItem}"></option>`);
   }
 
@@ -115,7 +115,7 @@ export default class EventEdit {
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
           <datalist id="destination-list-1">
-          ${this.getDesctinationList()}
+          ${this.getDestinationList()}
           </datalist>
         </div>
 
