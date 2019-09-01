@@ -1,4 +1,4 @@
-import {renderComponent, getSortEventList} from "./utils/util";
+import {renderComponent, getSortEventList, createElement} from "./utils/util";
 import {getMockEvent, menuTitles, filters} from "./data";
 import Menu from "./components/menu";
 import Filter from "./components/filter";
@@ -18,10 +18,7 @@ const tripEvents = document.querySelector(`.trip-events > h2`);
 
 const events = new Array(EVENT_COUNT).fill(``).map(getMockEvent);
 
-const getSortEvents = () => {
-  const eventsCopy = events.slice();
-  return eventsCopy.sort(getSortEventList);
-};
+const getSortEvents = (eventsMock) => eventsMock.slice().sort(getSortEventList);
 
 const getUniqueDays = (eventsMock) => {
   const tripDays = eventsMock.map(({time: {timeStartEvent}}) => new Date(timeStartEvent).toDateString());
@@ -30,12 +27,6 @@ const getUniqueDays = (eventsMock) => {
     return [time, filteredEvents];
   });
 };
-
-const menu = new Menu(menuTitles);
-const days = new Days();
-const info = new Info(getSortEvents());
-const filter = new Filter(filters);
-const sort = new Sort();
 
 const renderEvent = (eventsList, eventMock) => {
   const event = new Event(eventMock);
@@ -93,17 +84,36 @@ const renderDays = (uniqueDays) => {
   });
 };
 
-const renderLayout = () => {
+const getSumCostTrip = (eventsMock) => {
+  const sumCost = document.querySelector(`.trip-info__cost-value`);
+  sumCost.textContent = eventsMock.map(({price}) => price).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+};
+
+const renderLayout = (...components) => {
+  const [menu, days, info, filter, sort] = components;
   renderComponent(tripInfo, info.getElement(), `afterbegin`);
   renderComponent(tripControls, menu.getElement());
   renderComponent(tripFilters, filter.getElement());
   renderComponent(tripEvents, days.getElement());
   renderComponent(tripEvents, sort.getElement());
-  renderDays(getUniqueDays(getSortEvents()));
 };
 
-renderLayout();
+const init = (eventsMock) => {
+  const noEventsMarkup = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
+  if (eventsMock.length) {
+    const menu = new Menu(menuTitles);
+    const days = new Days();
+    const info = new Info(getSortEvents(eventsMock));
+    const filter = new Filter(filters);
+    const sort = new Sort();
+    renderLayout(menu, days, info, filter, sort);
+    renderDays(getUniqueDays(getSortEvents(eventsMock)));
+    getSumCostTrip(eventsMock);
+  } else {
+    renderComponent(tripEvents, createElement(noEventsMarkup));
+  }
+};
 
-const sumCost = document.querySelector(`.trip-info__cost-value`);
-sumCost.textContent = events.map(({price}) => price).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+init(events);
+
 
