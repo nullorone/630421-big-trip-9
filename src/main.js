@@ -4,9 +4,17 @@ import Menu from "./components/menu";
 import Filter from "./components/filter";
 import Info from "./components/info";
 import Sort from "./components/sort";
+import Day from "./components/day";
 import Days from "./components/days";
+import Event from "./components/event";
+import EventEdit from "./components/eventEdit";
 
 const EVENT_COUNT = 7;
+
+const tripInfo = document.querySelector(`.trip-info`);
+const tripControls = document.querySelector(`.trip-controls > h2:first-child`);
+const tripFilters = document.querySelector(`.trip-controls > h2:last-child`);
+const tripEvents = document.querySelector(`.trip-events > h2`);
 
 const events = new Array(EVENT_COUNT).fill(``).map(getMockEvent);
 
@@ -15,16 +23,75 @@ const getSortEvents = () => {
   return eventsCopy.sort(getSortEventList);
 };
 
-const tripInfo = document.querySelector(`.trip-info`);
-const tripControls = document.querySelector(`.trip-controls > h2:first-child`);
-const tripFilters = document.querySelector(`.trip-controls > h2:last-child`);
-const tripEvents = document.querySelector(`.trip-events > h2`);
+const getUniqueDays = (eventsMock) => {
+  const tripDays = eventsMock.map(({time: {timeStartEvent}}) => new Date(timeStartEvent).toDateString());
+  return Array.from(new Set(tripDays)).map((time) => {
+    const filteredEvents = eventsMock.filter((event) => new Date(event.time.timeStartEvent).toDateString() === time);
+    return [time, filteredEvents];
+  });
+};
 
 const menu = new Menu(menuTitles);
-const days = new Days(getSortEvents());
+const days = new Days();
 const info = new Info(getSortEvents());
 const filter = new Filter(filters);
 const sort = new Sort();
+
+const renderEvent = (eventsList, eventMock) => {
+  const event = new Event(eventMock);
+  const eventEdit = new EventEdit(eventMock);
+
+  const onEventEditEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      eventsList.replaceChild(event.getElement(), eventEdit.getElement());
+      document.removeEventListener(`keydown`, onEventEditEscKeyDown);
+    }
+  };
+
+  const onEventRollupButtonClick = (evt) => {
+    evt.preventDefault();
+    eventsList.replaceChild(eventEdit.getElement(), event.getElement());
+    document.addEventListener(`keydown`, onEventEditEscKeyDown);
+    event.getElement().removeEventListener(`click`, onEventRollupButtonClick);
+  };
+
+  const onEventEditRollupButtonClick = (evt) => {
+    evt.preventDefault();
+    eventsList.replaceChild(event.getElement(), eventEdit.getElement());
+    document.removeEventListener(`keydown`, onEventEditEscKeyDown);
+    eventEdit.getElement().removeEventListener(`click`, onEventEditRollupButtonClick);
+  };
+
+  const onEventEditSubmit = onEventEditRollupButtonClick;
+
+  event.getElement()
+    .querySelector(`.event__rollup-btn`)
+    .addEventListener(`click`, onEventRollupButtonClick);
+
+  eventEdit.getElement()
+    .querySelector(`.event__rollup-btn`)
+    .addEventListener(`click`, onEventEditRollupButtonClick);
+
+  eventEdit.getElement()
+    .querySelector(`form`)
+    .addEventListener(`submit`, onEventEditSubmit);
+
+  renderComponent(eventsList, event.getElement(), `beforeend`);
+};
+
+const renderEvents = (eventsList, events) => {
+  events.forEach((event) => renderEvent(eventsList, event));
+};
+
+const renderDays = (uniqueDays) => {
+  const tripDays = document.querySelector(`.trip-days`);
+  uniqueDays.forEach((uniqueDay, index) => {
+    const day = new Day(uniqueDay.shift(), index + 1);
+    renderComponent(tripDays, day.getElement(), `beforeend`);
+    const eventsList = day.getElement().querySelector(`.trip-events__list`);
+    renderEvents(eventsList, uniqueDay.pop());
+  });
+};
 
 const renderLayout = () => {
   renderComponent(tripInfo, info.getElement(), `afterbegin`);
@@ -32,9 +99,11 @@ const renderLayout = () => {
   renderComponent(tripFilters, filter.getElement());
   renderComponent(tripEvents, days.getElement());
   renderComponent(tripEvents, sort.getElement());
+  renderDays(getUniqueDays(getSortEvents()));
 };
 
 renderLayout();
 
 const sumCost = document.querySelector(`.trip-info__cost-value`);
 sumCost.textContent = events.map(({price}) => price).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+
