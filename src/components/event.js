@@ -5,6 +5,7 @@ export default class Event {
   constructor({
     type: {iconName, title},
     price,
+    city,
     offers,
     time: {
       timeStartEvent,
@@ -18,6 +19,7 @@ export default class Event {
     this._iconName = iconName;
     this._title = title;
     this._price = price;
+    this._city = city;
     this._offers = offers;
     this._timeStartEvent = timeStartEvent;
     this._timeStartEventFormat = this.getFormattingTime(this._timeStartEvent);
@@ -66,7 +68,7 @@ export default class Event {
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="img/icons/${this._iconName}.png" alt="Event type icon">
           </div>
-          <h3 class="event__title">${this._title} airport</h3>
+          <h3 class="event__title">${this._title} ${this._city}</h3>
 
           <div class="event__schedule">
             <p class="event__time">
