@@ -1,4 +1,4 @@
-import {renderComponent, getSortEventList, unrenderComponent} from "./utils/util";
+import {renderComponent, getSortEventList} from "./utils/util";
 import {getMockEvent, menuTitles, filters} from "./data";
 import Menu from "./components/menu";
 import Filter from "./components/filter";
@@ -79,8 +79,8 @@ const renderEvent = (eventsList, eventMock) => {
   renderComponent(eventsList, event.getElement(), `beforeend`);
 };
 
-const renderEvents = (eventsList, events) => {
-  events.forEach((event) => renderEvent(eventsList, event));
+const renderEvents = (eventsList, eventsDay) => {
+  eventsDay.forEach((event) => renderEvent(eventsList, event));
 };
 
 const renderDays = (uniqueDays) => {

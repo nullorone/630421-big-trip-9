@@ -58,7 +58,7 @@ export default class Event {
               <span class="event__offer-title">${offerTitle}</span>
               &plus;
               &euro;&nbsp;<span class="event__offer-price">${offerPrice}</span>
-             </li>`.trim()).join(``)
+             </li>`.trim()).join(``);
   }
 
   getTemplate() {
