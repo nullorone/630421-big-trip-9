@@ -1,24 +1,13 @@
-import {createElement} from "../utils/util";
+import Abstract from "./abstract";
 
-export default class Info {
+export default class Info extends Abstract {
   constructor(events) {
+    super();
     this._events = events;
-    this._element = null;
     this._cities = this.getCitiesEvents();
     this._timeStartEvent = this.formattingTimeStartFirstEvent;
     this._timeFinishEvent = this.formattingTimeFinishLastEvent;
     this._separatorCities = ` \u2014 `;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   getCitiesEvents() {

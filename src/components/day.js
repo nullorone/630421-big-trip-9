@@ -1,21 +1,10 @@
-import {createElement} from "../utils/util";
+import Abstract from "./abstract";
 
-export default class Day {
+export default class Day extends Abstract {
   constructor(dayTime, dayCount) {
+    super();
     this._dayTime = dayTime;
     this._dayCount = dayCount;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   getFormattingIsoTime(time) {

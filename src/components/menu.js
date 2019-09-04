@@ -1,20 +1,9 @@
-import {createElement} from "../utils/util";
+import Abstract from "./abstract";
 
-export default class Menu {
+export default class Menu extends Abstract {
   constructor(menuItems) {
+    super();
     this._menuItems = menuItems;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   getTemplate() {
