@@ -5,67 +5,33 @@ import Event from "../components/event";
 import EventEdit from "../components/eventEdit";
 
 export default class TripController {
-  constructor(events, uniqueDays) {
-    // this._container = container;
-    this._events = events;
-    this._uniqueDays = uniqueDays;
+  constructor(events) {
+    this._events = events.slice();
   }
 
-  _renderEvent(eventsList, eventMock) {
-    const event = new Event(eventMock);
-    const eventEdit = new EventEdit(eventMock);
+  // Получаем объект с ключом - день:number и значением - евенты:[]
+  getSortedDays() {
+    return this._events.reduce((acc, value) => {
 
-    const onEventEditEscKeyDown = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        eventsList.replaceChild(event.getElement(), eventEdit.getElement());
-        document.removeEventListener(`keydown`, onEventEditEscKeyDown);
+      const date = Date.parse(new Date(value.time.timeStartEvent).toDateString());
+      if (!acc[date]) {
+        acc[date] = [];
       }
-    };
 
-    const onEventRollupButtonClick = (evt) => {
-      evt.preventDefault();
-      eventsList.replaceChild(eventEdit.getElement(), event.getElement());
-      document.addEventListener(`keydown`, onEventEditEscKeyDown);
-      event.getElement().removeEventListener(`click`, onEventRollupButtonClick);
-    };
+      acc[date].push(value);
 
-    const onEventEditRollupButtonClick = (evt) => {
-      evt.preventDefault();
-      eventsList.replaceChild(event.getElement(), eventEdit.getElement());
-      document.removeEventListener(`keydown`, onEventEditEscKeyDown);
-      eventEdit.getElement().removeEventListener(`click`, onEventEditRollupButtonClick);
-    };
-
-    const onEventEditSubmit = onEventEditRollupButtonClick;
-
-    event.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, onEventRollupButtonClick);
-
-    eventEdit.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, onEventEditRollupButtonClick);
-
-    eventEdit.getElement()
-      .querySelector(`form`)
-      .addEventListener(`submit`, onEventEditSubmit);
-
-    renderComponent(eventsList, event.getElement(), `beforeend`);
+      return acc;
+    }, {});
   }
 
-  _renderEvents(eventsList, eventsDay) {
-    eventsDay.forEach((event) => this._renderEvent(eventsList, event));
-  }
+  // Получаем двумерный массив с евентами
+  getUniqueEventsList() {
+    let eventsResult = [];
+    for (let [, value] of Object.entries(this.getSortedDays())) {
+      eventsResult.push(value);
+    }
 
-  _renderDays() {
-    const uniqueDaysCopy = this._uniqueDays.slice();
-    const tripDays = document.querySelector(`.trip-days`);
-    uniqueDaysCopy.forEach((uniqueDay, index) => {
-      const day = new Day(uniqueDay.shift(), index + 1);
-      renderComponent(tripDays, day.getElement(), `beforeend`);
-      const eventsList = day.getElement().querySelector(`.trip-events__list`);
-      this._renderEvents(eventsList, uniqueDay.pop());
-    });
+    return eventsResult;
   }
 
   getSumCostTrip() {
@@ -87,6 +53,64 @@ export default class TripController {
     } else {
       renderComponent(tripEvents, createElement(noEventsMarkup));
     }
+  }
+
+  _renderEvent(eventsContainer, eventMock) {
+    const event = new Event(eventMock);
+    const eventEdit = new EventEdit(eventMock);
+
+    const onEventEditEscKeyDown = (evt) => {
+      if (evt.key === `Escape` || evt.key === `Esc`) {
+        eventsContainer.replaceChild(event.getElement(), eventEdit.getElement());
+        document.removeEventListener(`keydown`, onEventEditEscKeyDown);
+      }
+    };
+
+    const onEventRollupButtonClick = (evt) => {
+      evt.preventDefault();
+      eventsContainer.replaceChild(eventEdit.getElement(), event.getElement());
+      document.addEventListener(`keydown`, onEventEditEscKeyDown);
+      event.getElement().removeEventListener(`click`, onEventRollupButtonClick);
+    };
+
+    const onEventEditRollupButtonClick = (evt) => {
+      evt.preventDefault();
+      eventsContainer.replaceChild(event.getElement(), eventEdit.getElement());
+      document.removeEventListener(`keydown`, onEventEditEscKeyDown);
+      eventEdit.getElement().removeEventListener(`click`, onEventEditRollupButtonClick);
+    };
+
+    const onEventEditSubmit = onEventEditRollupButtonClick;
+
+    event.getElement()
+      .querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, onEventRollupButtonClick);
+
+    eventEdit.getElement()
+      .querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, onEventEditRollupButtonClick);
+
+    eventEdit.getElement()
+      .querySelector(`form`)
+      .addEventListener(`submit`, onEventEditSubmit);
+
+    renderComponent(eventsContainer, event.getElement(), `beforeend`);
+  }
+
+  _renderEvents(eventsContainer, eventsDay) {
+    eventsDay.forEach((event) => this._renderEvent(eventsContainer, event));
+  }
+
+  _renderDays() {
+    const tripDays = document.querySelector(`.trip-days`);
+
+    this.getUniqueEventsList().forEach((uniqueDay, index) => {
+      const day = new Day(uniqueDay[0], index + 1);
+      renderComponent(tripDays, day.getElement(), `beforeend`);
+
+      const eventsContainer = day.getElement().querySelector(`.trip-events__list`);
+      this._renderEvents(eventsContainer, uniqueDay);
+    });
   }
 }
 
