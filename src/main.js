@@ -18,15 +18,6 @@ const getSortEvents = () => {
   return events.slice().sort(getSortEventList);
 };
 
-const getUniqueDays = () => {
-  const sortedEvents = getSortEvents();
-  const tripDays = sortedEvents.map(({time: {timeStartEvent}}) => new Date(timeStartEvent).toDateString());
-
-  return Array.from(new Set(tripDays)).map((time) => {
-    const filteredEvents = sortedEvents.filter((event) => new Date(event.time.timeStartEvent).toDateString() === time);
-    return [time, filteredEvents];
-  });
-};
 const renderLayout = () => {
   const menu = new Menu(menuTitles);
   const filter = new Filter(filters);
@@ -41,17 +32,5 @@ const renderLayout = () => {
 
 renderLayout();
 
-const tripController = new TripController(getSortEvents(), getUniqueDays());
+const tripController = new TripController(getSortEvents());
 tripController.init();
-
-
-
-
-// const unsortedDays = eventsDataArray.reduce((acc, it) =>{
-//   const dt = getEventDayDate(it.eventTime.start);
-//   if (!acc[dt]) {
-//     acc[dt] = [];
-//   }
-//   acc[dt].push(it);
-//   return acc;
-// }, {});
