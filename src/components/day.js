@@ -1,14 +1,18 @@
 import Abstract from "./abstract";
 
 export default class Day extends Abstract {
-  constructor(dayTime, dayCount) {
+  constructor({
+    time: {
+      timeStartEvent,
+    }
+  }, dayCount) {
     super();
-    this._dayTime = dayTime;
+    this._dayTime = timeStartEvent;
     this._dayCount = dayCount;
   }
 
   getFormattingIsoTime(time) {
-    return new Date(time).toISOString().substr(0, 10);
+    return new Date(+time).toISOString().substr(0, 10);
   }
 
   getFormattingTime(time) {
