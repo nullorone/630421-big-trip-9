@@ -21,7 +21,7 @@ export default class Abstract {
   }
 
   getTemplate() {
-    throw new Error(`Abstract method not implemented: getTemplate`)
+    throw new Error(`Abstract method not implemented: getTemplate`);
   }
 }
 
