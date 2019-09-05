@@ -16,7 +16,7 @@ export default class AbstractEvent extends Abstract {
         minutes,
       }
     },
-    description,}) {
+    description}) {
     super();
     this._iconName = iconName;
     this._title = title;
