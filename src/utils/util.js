@@ -43,7 +43,7 @@ const getDayTime = () => Date.now() + 1 + getRandomNumber(0, DAY_IN_WEEK) * HOUR
 
 const getRandomImage = () => `http://picsum.photos/300/150?r=${Math.random()}`;
 
-const getSortEventList = (a, b) => a.time.timeStartEvent - b.time.timeStartEvent;
+const getSortEventList = (a, b) => Date.parse(new Date(a.time.timeStartEvent).toDateString()) - Date.parse(new Date(b.time.timeStartEvent).toDateString());
 
 const createElement = (template) => {
   const newElement = document.createElement(`div`);
