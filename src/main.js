@@ -22,12 +22,10 @@ const renderLayout = () => {
   const menu = new Menu(menuTitles);
   const filter = new Filter(filters);
   const days = new Days();
-  const sort = new Sort();
 
   renderComponent(tripControls, menu.getElement());
   renderComponent(tripFilters, filter.getElement());
   renderComponent(tripEvents, days.getElement());
-  renderComponent(tripEvents, sort.getElement());
 };
 
 renderLayout();

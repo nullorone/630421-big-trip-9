@@ -3,10 +3,12 @@ import {createElement, renderComponent} from "../utils/util";
 import Day from "../components/day";
 import Event from "../components/event";
 import EventEdit from "../components/eventEdit";
+import Sort from "../components/sort";
 
 export default class TripController {
   constructor(events) {
     this._events = events.slice();
+    this._sort = new Sort();
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]
@@ -47,6 +49,7 @@ export default class TripController {
     if (this._events.length) {
       const info = new Info(this._events);
 
+      renderComponent(tripEvents, this._sort.getElement());
       renderComponent(tripInfo, info.getElement(), `afterbegin`);
       this._renderDays();
       this.getSumCostTrip();
