@@ -1,47 +1,13 @@
 // Разметка карточки путешествия
-import {createElement} from "../utils/util";
+import AbstractEvent from "./abstract-event";
 
-export default class Event {
-  constructor({
-    type: {iconName, title},
-    price,
-    city,
-    offers,
-    time: {
-      timeStartEvent,
-      timeFinishEvent,
-      duration: {
-        days,
-        hours,
-        minutes,
-      }
-    }}) {
-    this._iconName = iconName;
-    this._title = title;
-    this._price = price;
-    this._city = city;
-    this._offers = offers;
-    this._timeStartEvent = timeStartEvent;
+export default class Event extends AbstractEvent {
+  constructor(event) {
+    super(event);
     this._timeStartEventFormat = this.getFormattingTime(this._timeStartEvent);
     this._timeStartEventIsoFormat = this.getFormattingIsoTime(this._timeStartEvent);
-    this._timeFinishEvent = timeFinishEvent;
     this._timeFinishEventFormat = this.getFormattingTime(this._timeFinishEvent);
     this._timeFinishEventIsoFormat = this.getFormattingIsoTime(this._timeFinishEvent);
-    this._days = days;
-    this._hours = hours;
-    this._minutes = minutes;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   getFormattingIsoTime(time) {

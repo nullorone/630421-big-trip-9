@@ -1,25 +1,18 @@
-import {createElement} from "../utils/util";
+import Abstract from "./abstract";
 
-export default class Day {
-  constructor(dayTime, dayCount) {
-    this._dayTime = dayTime;
-    this._dayCount = dayCount;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
+export default class Day extends Abstract {
+  constructor({
+    time: {
+      timeStartEvent,
     }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  }, dayCount) {
+    super();
+    this._dayTime = timeStartEvent;
+    this._dayCount = dayCount;
   }
 
   getFormattingIsoTime(time) {
-    return new Date(time).toISOString().substr(0, 10);
+    return new Date(+time).toISOString().substr(0, 10);
   }
 
   getFormattingTime(time) {
