@@ -95,45 +95,7 @@ export default class TripController {
   }
 
   _renderEvent(eventsContainer, eventMock) {
-    const event = new Event(eventMock);
-    const eventEdit = new EventEdit(eventMock);
 
-    const onEventEditEscKeyDown = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        eventsContainer.replaceChild(event.getElement(), eventEdit.getElement());
-        document.removeEventListener(`keydown`, onEventEditEscKeyDown);
-      }
-    };
-
-    const onEventRollupButtonClick = (evt) => {
-      evt.preventDefault();
-      eventsContainer.replaceChild(eventEdit.getElement(), event.getElement());
-      document.addEventListener(`keydown`, onEventEditEscKeyDown);
-      event.getElement().removeEventListener(`click`, onEventRollupButtonClick);
-    };
-
-    const onEventEditRollupButtonClick = (evt) => {
-      evt.preventDefault();
-      eventsContainer.replaceChild(event.getElement(), eventEdit.getElement());
-      document.removeEventListener(`keydown`, onEventEditEscKeyDown);
-      eventEdit.getElement().removeEventListener(`click`, onEventEditRollupButtonClick);
-    };
-
-    const onEventEditSubmit = onEventEditRollupButtonClick;
-
-    event.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, onEventRollupButtonClick);
-
-    eventEdit.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, onEventEditRollupButtonClick);
-
-    eventEdit.getElement()
-      .querySelector(`form`)
-      .addEventListener(`submit`, onEventEditSubmit);
-
-    renderComponent(eventsContainer, event.getElement(), `beforeend`);
   }
 
   _renderEvents(eventsContainer, eventsDay) {
