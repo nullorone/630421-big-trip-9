@@ -1,10 +1,29 @@
 // Разметка формы редактирования события путешествия
 import {types, CITIES} from "../data";
-import AbstractEvent from "./abstract-event";
+import Abstract from "./abstract";
 
-export default class EventEdit extends AbstractEvent {
-  constructor(event) {
-    super(event);
+export default class EventEdit extends Abstract {
+  constructor({
+    type: {iconName, title},
+    price,
+    city,
+    img,
+    offers,
+    time: {
+      timeStartEvent,
+      timeFinishEvent,
+    },
+    description}) {
+    super();
+    this._iconName = iconName;
+    this._title = title;
+    this._price = price;
+    this._city = city;
+    this._img = img;
+    this._offers = offers;
+    this._description = description;
+    this._timeStartEvent = timeStartEvent;
+    this._timeFinishEvent = timeFinishEvent;
     this._timeStartEventValueFormat = this.getFormattingTimeValue(this._timeStartEvent);
     this._timeFinishEventValueFormat = this.getFormattingTimeValue(this._timeFinishEvent);
   }

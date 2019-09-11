@@ -3,10 +3,15 @@ import {createElement, renderComponent} from "../utils/util";
 import Day from "../components/day";
 import Event from "../components/event";
 import EventEdit from "../components/eventEdit";
+import Sort from "../components/sort";
+import Days from "../components/days";
 
 export default class TripController {
   constructor(events) {
     this._events = events.slice();
+    this._sort = new Sort();
+    this._days = new Days();
+    this._uniqueEvets = this.getUniqueEventsList();
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]
@@ -47,11 +52,45 @@ export default class TripController {
     if (this._events.length) {
       const info = new Info(this._events);
 
+      renderComponent(tripEvents, this._days.getElement());
+      renderComponent(tripEvents, this._sort.getElement());
       renderComponent(tripInfo, info.getElement(), `afterbegin`);
+      this._sort.getElement().addEventListener(`click`, this._onSortButtonClick.bind(this), true);
       this._renderDays();
       this.getSumCostTrip();
     } else {
       renderComponent(tripEvents, createElement(noEventsMarkup));
+    }
+  }
+
+  _onSortButtonClick(evt) {
+    evt.preventDefault();
+    const target = evt.target;
+
+    if (target.tagName !== `LABEL`) {
+      return;
+    }
+
+    const day = new Day().getElement();
+
+    target.previousElementSibling.checked = true;
+    this._days.getElement().innerHTML = ``;
+
+    switch (target.dataset.type) {
+      case (`time`):
+        const getDurationEvent = (event) => Math.abs(event.time.timeFinishEvent - event.time.timeStartEvent);
+        const sortedByDurationEvents = this._events.slice().sort((a, b) => getDurationEvent(b) - getDurationEvent(a));
+        renderComponent(this._days.getElement(), day, `beforeend`);
+        this._renderEvents(day.querySelector(`.trip-events__list`), sortedByDurationEvents);
+        break;
+      case (`price`):
+        const sortedByPriceEvents = this._events.slice().sort((a, b) => b.price - a.price);
+        renderComponent(this._days.getElement(), day, `beforeend`);
+        this._renderEvents(day.querySelector(`.trip-events__list`), sortedByPriceEvents);
+        break;
+      default:
+        this._renderDays();
+        break;
     }
   }
 
@@ -102,11 +141,9 @@ export default class TripController {
   }
 
   _renderDays() {
-    const tripDays = document.querySelector(`.trip-days`);
-
-    this.getUniqueEventsList().forEach((uniqueDay, index) => {
+    this._uniqueEvets.forEach((uniqueDay, index) => {
       const day = new Day(uniqueDay[0], index + 1);
-      renderComponent(tripDays, day.getElement(), `beforeend`);
+      renderComponent(this._days.getElement(), day.getElement(), `beforeend`);
 
       const eventsContainer = day.getElement().querySelector(`.trip-events__list`);
       this._renderEvents(eventsContainer, uniqueDay);
