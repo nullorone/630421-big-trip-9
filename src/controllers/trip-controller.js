@@ -41,9 +41,9 @@ export default class TripController {
     return eventsResult;
   }
 
-  getSumCostTrip() {
+  getSumCostTrip(events) {
     const sumCost = document.querySelector(`.trip-info__cost-value`);
-    sumCost.textContent = this._events.map(({price}) => price).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+    sumCost.textContent = events.map(({price}) => Number(price)).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
   }
 
   init() {
@@ -59,7 +59,7 @@ export default class TripController {
       renderComponent(tripInfo, info.getElement(), `afterbegin`);
       this._sort.getElement().addEventListener(`click`, this._onSortButtonClick.bind(this), true);
       this._renderDays(this._uniqueEvents);
-      this.getSumCostTrip();
+      this.getSumCostTrip(this._events);
     } else {
       renderComponent(tripEvents, createElement(noEventsMarkup));
     }
@@ -105,6 +105,7 @@ export default class TripController {
     this._events[this._events.findIndex((it) => it === oldEvent)] = newEvent;
     this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
     this._renderDays(this._uniqueEvents);
+    this.getSumCostTrip(this._events);
   }
 
   _renderEvents(eventsContainer, eventsDay) {
