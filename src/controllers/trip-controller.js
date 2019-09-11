@@ -69,16 +69,17 @@ export default class TripController {
     evt.preventDefault();
     const target = evt.target;
 
-    if (target.tagName !== `LABEL`) {
+    if (target.className !== `trip-sort__btn`) {
       return;
     }
 
+    const input = target.parentElement.querySelector(`.trip-sort__input`);
     const day = new Day().getElement();
 
-    target.previousElementSibling.checked = true;
+    input.checked = true;
     this._days.getElement().innerHTML = ``;
 
-    switch (target.dataset.type) {
+    switch (input.dataset.type) {
       case (`time`):
         const getDurationEvent = (event) => Math.abs(event.time.timeFinishEvent - event.time.timeStartEvent);
         const sortedByDurationEvents = this._events.slice().sort((a, b) => getDurationEvent(b) - getDurationEvent(a));
