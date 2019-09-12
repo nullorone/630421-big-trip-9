@@ -47,17 +47,23 @@ export default class EventEdit extends Abstract {
     return this.getEventGroup(activity);
   }
 
-  getEventOffers() {
-    return [...this._offers].map(({id, title, price, isChecked}) => `
-             <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-${id}-1" type="checkbox" name="event-offer-${id}" ${isChecked ? `checked` : ``}>
-                <label class="event__offer-label" for="event-offer-${id}-1">
-                  <span class="event__offer-title">${title}</span>
-                  &plus;
-                  &euro;&nbsp;<span class="event__offer-price">${price}</span>
-                </label>
-              </div>
-             `.trim()).join(``);
+  getEventOffers(offers) {
+    return offers.size ? `
+        <section class="event__section  event__section--offers">
+            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+  
+            <div class="event__available-offers">
+              ${[...offers].map(({id, title, price, isChecked}) => `
+               <div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${id}-1" type="checkbox" name="event-offer-${id}" ${isChecked ? `checked` : ``}>
+                  <label class="event__offer-label" for="event-offer-${id}-1">
+                    <span class="event__offer-title">${title}</span>
+                    &plus;
+                    &euro;&nbsp;<span class="event__offer-price">${price}</span>
+                  </label>
+                </div>`.trim()).join(``)}
+            </div>
+        </section>` : ``;
   }
 
   getEventImg() {
@@ -144,14 +150,7 @@ export default class EventEdit extends Abstract {
 
       <section class="event__details">
       
-      ${this._offers.size ? `
-        <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-  
-            <div class="event__available-offers">
-            ${this.getEventOffers()}
-            </div>
-          </section>` : ``}
+      ${this.getEventOffers(this._offers)}
 
         <section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
