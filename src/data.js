@@ -217,4 +217,4 @@ const getMockEvent = () => ({
 });
 
 
-export {getMockEvent, types, CITIES, menuTitles, filters};
+export {getMockEvent, getOffers, getRandomDescription, types, CITIES, menuTitles, filters};
