@@ -87,55 +87,55 @@ const types = [
   {
     transfer: [
       {
-        id: `bus-to`,
-        iconName: `bus`,
+        id: `bus`,
+        iconSrc: `./img/icons/bus.png`,
         title: `Bus to`,
       },
       {
-        id: `drive-to`,
-        iconName: `drive`,
+        id: `drive`,
+        iconSrc: `./img/icons/drive.png`,
         title: `Drive to`,
       },
       {
-        id: `flight-to`,
-        iconName: `flight`,
+        id: `flight`,
+        iconSrc: `./img/icons/flight.png`,
         title: `Flight to`,
       },
       {
-        id: `ship-to`,
-        iconName: `ship`,
+        id: `ship`,
+        iconSrc: `./img/icons/ship.png`,
         title: `Ship to`,
       },
       {
-        id: `taxi-to`,
-        iconName: `taxi`,
+        id: `taxi`,
+        iconSrc: `./img/icons/taxi.png`,
         title: `Taxi to`,
       },
       {
-        id: `train-to`,
-        iconName: `train`,
+        id: `train`,
+        iconSrc: `./img/icons/train.png`,
         title: `Train to`,
       },
       {
-        id: `transport-to`,
-        iconName: `transport`,
+        id: `transport`,
+        iconSrc: `./img/icons/transport.png`,
         title: `Transport to`,
       }
     ],
     activity: [
       {
         id: `check-in`,
-        iconName: `check-in`,
+        iconSrc: `./img/icons/check-in.png`,
         title: `Check in`,
       },
       {
-        id: `sightseeing-at`,
-        iconName: `sightseeing`,
+        id: `sightseeing`,
+        iconSrc: `./img/icons/sightseeing.png`,
         title: `Sightseeing at`,
       },
       {
-        id: `eat-at`,
-        iconName: `restaurant`,
+        id: `restaurant`,
+        iconSrc: `./img/icons/restaurant.png`,
         title: `Eat at`,
       }
     ],
@@ -180,24 +180,10 @@ const getOffers = () => {
 const getTime = () => {
   const timeStartEvent = getDayTime() + getRandomNumber(0, TIME_RANGE);
   const timeFinishEvent = timeStartEvent + getRandomNumber(0, TIME_RANGE);
-  const diffTime = Math.abs(timeFinishEvent - timeStartEvent);
-
-  let minutes = Math.floor(diffTime / 1000 / 60) % 60;
-  let hours = Math.floor(diffTime / 1000 / 60 / 60) % 24;
-  let days = Math.floor((diffTime / 1000 / 60 / 60) / 24);
-
-  minutes = minutes ? `${minutes}M` : ``;
-  hours = hours ? `${hours}H` : ``;
-  days = days ? `${days}D` : ``;
 
   return {
     timeStartEvent,
     timeFinishEvent,
-    duration: {
-      days,
-      hours,
-      minutes,
-    }
   };
 };
 
@@ -231,4 +217,4 @@ const getMockEvent = () => ({
 });
 
 
-export {getMockEvent, types, CITIES, menuTitles, filters};
+export {getMockEvent, getOffers, getRandomDescription, types, CITIES, menuTitles, filters};

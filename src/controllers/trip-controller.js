@@ -1,22 +1,24 @@
 import Info from "../components/info";
-import {createElement, renderComponent} from "../utils/util";
+import {createElement, renderComponent, unrenderComponent} from "../utils/util";
 import Day from "../components/day";
-import Event from "../components/event";
-import EventEdit from "../components/eventEdit";
 import Sort from "../components/sort";
 import Days from "../components/days";
+import PointController from "./point-controller";
 
 export default class TripController {
   constructor(events) {
     this._events = events.slice();
     this._sort = new Sort();
     this._days = new Days();
-    this._uniqueEvets = this.getUniqueEventsList();
+    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+    this._subscriptions = [];
+    this._onChangeView = this._onChangeView.bind(this);
+    this._onDataChange = this._onDataChange.bind(this);
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]
-  getSortedDays() {
-    return this._events.reduce((acc, value) => {
+  getSortedDays(unsortedEvents) {
+    return unsortedEvents.reduce((acc, value) => {
 
       const date = Date.parse(new Date(value.time.timeStartEvent).toDateString());
       if (!acc[date]) {
@@ -30,18 +32,18 @@ export default class TripController {
   }
 
   // Получаем двумерный массив с евентами
-  getUniqueEventsList() {
+  getUniqueEventsList(sortedEvents) {
     let eventsResult = [];
-    for (let [, value] of Object.entries(this.getSortedDays())) {
+    for (let [, value] of Object.entries(sortedEvents)) {
       eventsResult.push(value);
     }
 
     return eventsResult;
   }
 
-  getSumCostTrip() {
+  getSumCostTrip(events) {
     const sumCost = document.querySelector(`.trip-info__cost-value`);
-    sumCost.textContent = this._events.map(({price}) => price).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+    sumCost.textContent = events.map(({price}) => Number(price)).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
   }
 
   init() {
@@ -56,8 +58,8 @@ export default class TripController {
       renderComponent(tripEvents, this._sort.getElement());
       renderComponent(tripInfo, info.getElement(), `afterbegin`);
       this._sort.getElement().addEventListener(`click`, this._onSortButtonClick.bind(this), true);
-      this._renderDays();
-      this.getSumCostTrip();
+      this._renderDays(this._uniqueEvents);
+      this.getSumCostTrip(this._events);
     } else {
       renderComponent(tripEvents, createElement(noEventsMarkup));
     }
@@ -67,16 +69,17 @@ export default class TripController {
     evt.preventDefault();
     const target = evt.target;
 
-    if (target.tagName !== `LABEL`) {
+    if (target.className !== `trip-sort__btn`) {
       return;
     }
 
+    const input = target.parentElement.querySelector(`.trip-sort__input`);
     const day = new Day().getElement();
 
-    target.previousElementSibling.checked = true;
+    input.checked = true;
     this._days.getElement().innerHTML = ``;
 
-    switch (target.dataset.type) {
+    switch (input.dataset.type) {
       case (`time`):
         const getDurationEvent = (event) => Math.abs(event.time.timeFinishEvent - event.time.timeStartEvent);
         const sortedByDurationEvents = this._events.slice().sort((a, b) => getDurationEvent(b) - getDurationEvent(a));
@@ -89,59 +92,40 @@ export default class TripController {
         this._renderEvents(day.querySelector(`.trip-events__list`), sortedByPriceEvents);
         break;
       default:
-        this._renderDays();
+        this._renderDays(this._uniqueEvents);
         break;
     }
   }
 
-  _renderEvent(eventsContainer, eventMock) {
-    const event = new Event(eventMock);
-    const eventEdit = new EventEdit(eventMock);
+  _onChangeView() {
+    this._subscriptions.forEach((subscription) => subscription());
+  }
 
-    const onEventEditEscKeyDown = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        eventsContainer.replaceChild(event.getElement(), eventEdit.getElement());
-        document.removeEventListener(`keydown`, onEventEditEscKeyDown);
-      }
-    };
-
-    const onEventRollupButtonClick = (evt) => {
-      evt.preventDefault();
-      eventsContainer.replaceChild(eventEdit.getElement(), event.getElement());
-      document.addEventListener(`keydown`, onEventEditEscKeyDown);
-      event.getElement().removeEventListener(`click`, onEventRollupButtonClick);
-    };
-
-    const onEventEditRollupButtonClick = (evt) => {
-      evt.preventDefault();
-      eventsContainer.replaceChild(event.getElement(), eventEdit.getElement());
-      document.removeEventListener(`keydown`, onEventEditEscKeyDown);
-      eventEdit.getElement().removeEventListener(`click`, onEventEditRollupButtonClick);
-    };
-
-    const onEventEditSubmit = onEventEditRollupButtonClick;
-
-    event.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, onEventRollupButtonClick);
-
-    eventEdit.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, onEventEditRollupButtonClick);
-
-    eventEdit.getElement()
-      .querySelector(`form`)
-      .addEventListener(`submit`, onEventEditSubmit);
-
-    renderComponent(eventsContainer, event.getElement(), `beforeend`);
+  _onDataChange(newEvent, oldEvent) {
+    this._events[this._events.findIndex((it) => it === oldEvent)] = newEvent;
+    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+    this._renderDays(this._uniqueEvents);
+    this.getSumCostTrip(this._events);
   }
 
   _renderEvents(eventsContainer, eventsDay) {
-    eventsDay.forEach((event) => this._renderEvent(eventsContainer, event));
+    eventsDay.forEach((event) => {
+      const pointController = new PointController(eventsContainer, event, this._onDataChange, this._onChangeView);
+      this._subscriptions.push(pointController.setDefaultView.bind(pointController));
+
+      return pointController;
+    });
   }
 
-  _renderDays() {
-    this._uniqueEvets.forEach((uniqueDay, index) => {
+  _renderDays(uniqueEvents) {
+    const tripEvents = document.querySelector(`.trip-events`);
+    if (document.querySelector(`.trip-days`)) {
+      unrenderComponent(this._days.getElement());
+      this._days.removeElement();
+    }
+    this._days = new Days();
+    renderComponent(tripEvents, this._days.getElement(), `beforeend`);
+    uniqueEvents.forEach((uniqueDay, index) => {
       const day = new Day(uniqueDay[0], index + 1);
       renderComponent(this._days.getElement(), day.getElement(), `beforeend`);
 

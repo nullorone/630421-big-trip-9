@@ -34,6 +34,31 @@ const getShuffleArray = (array) => {
   return cloneArray;
 };
 
+const convertTimeData = (time) => {
+  const times = time.split(` `);
+  const date = times[0].split(`/`).reverse().join(`-`);
+  const newTime = `${date} ${times[1]}`;
+  return Date.parse(newTime);
+};
+
+const getDurationTime = (timeStart, timeFinish) => {
+  const diffTime = Math.abs(timeFinish - timeStart);
+
+  let minutes = Math.floor(diffTime / 1000 / 60) % 60;
+  let hours = Math.floor(diffTime / 1000 / 60 / 60) % 24;
+  let days = Math.floor((diffTime / 1000 / 60 / 60) / 24);
+
+  minutes = minutes ? `${minutes}M` : ``;
+  hours = hours ? `${hours}H` : ``;
+  days = days ? `${days}D` : ``;
+
+  return {
+    days,
+    hours,
+    minutes,
+  };
+};
+
 // Случайное булево значение
 const getRandomBoolean = () => {
   return Boolean(Math.round(Math.random()));
@@ -61,5 +86,7 @@ export {
   getRandomImage,
   getSortEventList,
   createElement,
+  convertTimeData,
+  getDurationTime,
 };
 

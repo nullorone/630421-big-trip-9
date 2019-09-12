@@ -1,32 +1,28 @@
 // Разметка карточки путешествия
 import Abstract from "./abstract";
+import {getDurationTime} from "../utils/util";
 
 export default class Event extends Abstract {
   constructor({
-    type: {iconName, title},
+    type: {iconSrc, title},
     price,
     city,
     offers,
     time: {
       timeStartEvent,
       timeFinishEvent,
-      duration: {
-        days,
-        hours,
-        minutes,
-      }
     }}) {
     super();
-    this._iconName = iconName;
+    this._iconSrc = iconSrc;
     this._title = title;
     this._price = price;
     this._city = city;
     this._offers = offers;
     this._timeStartEvent = timeStartEvent;
     this._timeFinishEvent = timeFinishEvent;
-    this._days = days;
-    this._hours = hours;
-    this._minutes = minutes;
+    this._days = getDurationTime(this._timeStartEvent, this._timeFinishEvent).days;
+    this._hours = getDurationTime(this._timeStartEvent, this._timeFinishEvent).hours;
+    this._minutes = getDurationTime(this._timeStartEvent, this._timeFinishEvent).minutes;
     this._timeStartEventFormat = this.getFormattingTime(this._timeStartEvent);
     this._timeStartEventIsoFormat = this.getFormattingIsoTime(this._timeStartEvent);
     this._timeFinishEventFormat = this.getFormattingTime(this._timeFinishEvent);
@@ -55,7 +51,7 @@ export default class Event extends Abstract {
       <li class="trip-events__item">
         <div class="event">
           <div class="event__type">
-            <img class="event__type-icon" width="42" height="42" src="img/icons/${this._iconName}.png" alt="Event type icon">
+            <img class="event__type-icon" width="42" height="42" src="${this._iconSrc}" alt="Event type icon">
           </div>
           <h3 class="event__title">${this._title} ${this._city}</h3>
 

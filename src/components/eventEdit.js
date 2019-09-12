@@ -4,7 +4,7 @@ import Abstract from "./abstract";
 
 export default class EventEdit extends Abstract {
   constructor({
-    type: {iconName, title},
+    type: {iconSrc, title},
     price,
     city,
     img,
@@ -15,7 +15,7 @@ export default class EventEdit extends Abstract {
     },
     description}) {
     super();
-    this._iconName = iconName;
+    this._iconSrc = iconSrc;
     this._title = title;
     this._price = price;
     this._city = city;
@@ -47,17 +47,23 @@ export default class EventEdit extends Abstract {
     return this.getEventGroup(activity);
   }
 
-  getEventOffers() {
-    return [...this._offers].map(({id, title, price, isChecked}) => `
-             <div class="event__offer-selector">
-                <input class="event__offer-checkbox  visually-hidden" id="event-offer-${id}-1" type="checkbox" name="event-offer-luggage" ${isChecked ? `checked` : ``}>
-                <label class="event__offer-label" for="event-offer-${id}-1">
-                  <span class="event__offer-title">${title}</span>
-                  &plus;
-                  &euro;&nbsp;<span class="event__offer-price">${price}</span>
-                </label>
-              </div>
-             `.trim()).join(``);
+  getEventOffers(offers) {
+    return offers.size ? `
+        <section class="event__section  event__section--offers">
+            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+  
+            <div class="event__available-offers">
+              ${[...offers].map(({id, title, price, isChecked}) => `
+               <div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${id}-1" type="checkbox" name="event-offer-${id}" ${isChecked ? `checked` : ``}>
+                  <label class="event__offer-label" for="event-offer-${id}-1">
+                    <span class="event__offer-title">${title}</span>
+                    &plus;
+                    &euro;&nbsp;<span class="event__offer-price">${price}</span>
+                  </label>
+                </div>`.trim()).join(``)}
+            </div>
+        </section>` : ``;
   }
 
   getEventImg() {
@@ -65,11 +71,11 @@ export default class EventEdit extends Abstract {
   }
 
   getDestinationList() {
-    return CITIES.map((cityItem) => `<option value="${cityItem}"></option>`);
+    return CITIES.map((cityItem) => `<option value="${cityItem}"></option>`).join(``);
   }
 
   getFormattingTimeValue(time) {
-    return (new Date(time).toLocaleString().slice(0, 10).split(`.`).join(`/`) + new Date(time).toTimeString().substr(0, 5));
+    return `${new Date(time).toLocaleString().slice(0, 10).split(`.`).join(`/`)} ${new Date(time).toTimeString().substr(0, 5)}`;
   }
 
   getTemplate() {
@@ -80,7 +86,7 @@ export default class EventEdit extends Abstract {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${this._iconName}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="${this._iconSrc}" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -144,14 +150,7 @@ export default class EventEdit extends Abstract {
 
       <section class="event__details">
       
-      ${this._offers.size ? `
-        <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-  
-            <div class="event__available-offers">
-            ${this.getEventOffers()}
-            </div>
-          </section>` : ``}
+      ${this.getEventOffers(this._offers)}
 
         <section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
