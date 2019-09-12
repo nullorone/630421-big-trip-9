@@ -1,6 +1,7 @@
 import Event from "../components/event";
 import EventEdit from "../components/eventEdit";
-import {renderComponent, convertTimeData} from "../utils/util";
+import {renderComponent, convertTimeData, createElement, unrenderComponent} from "../utils/util";
+import {getOffers, getRandomDescription} from "../data";
 
 export default class PointController {
   constructor(container, data, onDataChange, onChangeView) {
@@ -39,6 +40,42 @@ export default class PointController {
 
     const onEventEditSubmit = onEventEditRollupButtonClick;
 
+    const onTypeClick = (evt) => {
+      const target = evt.target;
+
+      if (!target.className.includes(`event__type-label`)) {
+        return;
+      }
+
+      const typeTitle = target.innerText;
+      const typeInput = target.parentElement.querySelector(`.event__type-input`);
+      const valueTypeInput = typeInput.value;
+      let eventTypeIconSrc = this._eventEdit.getElement().querySelector(`.event__type-icon`);
+      let eventTypeOutputTitle = this._eventEdit.getElement().querySelector(`.event__type-output`);
+      const offerContainer = this._eventEdit.getElement().querySelector(`.event__section--offers`);
+      const detailsContainer = this._eventEdit.getElement().querySelector(`.event__details`);
+      const newOffers = createElement(this._eventEdit.getEventOffers(new Set(getOffers())));
+
+      eventTypeIconSrc.src = `./img/icons/${valueTypeInput}.png`;
+      eventTypeOutputTitle.innerText = typeTitle;
+
+      if (offerContainer && newOffers) {
+        unrenderComponent(offerContainer);
+        renderComponent(detailsContainer, newOffers, `afterbegin`);
+      } else if (!offerContainer && newOffers) {
+        renderComponent(detailsContainer, newOffers, `afterbegin`);
+      } else if (!newOffers && offerContainer) {
+        unrenderComponent(offerContainer);
+      }
+
+      this._eventEdit.getElement().querySelector(`.event__type-toggle`).checked = false;
+    };
+
+    const onDestinationChange = () => {
+      const descriptionContainer = this._eventEdit.getElement().querySelector(`.event__destination-description`);
+      descriptionContainer.innerHTML = getRandomDescription();
+    };
+
     this._event.getElement()
       .querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, onEventRollupButtonClick);
@@ -50,6 +87,14 @@ export default class PointController {
     this._eventEdit.getElement()
       .querySelector(`form`)
       .addEventListener(`submit`, onEventEditSubmit);
+
+    this._eventEdit.getElement()
+      .querySelector(`.event__type-list`)
+      .addEventListener(`click`, onTypeClick, true);
+
+    this._eventEdit.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`change`, onDestinationChange);
 
     this._eventEdit.getElement()
       .querySelector(`.event__save-btn`)
