@@ -1,6 +1,7 @@
 // Разметка карточки путешествия
 import Abstract from "./abstract";
 import {getDurationTime} from "../utils/util";
+import moment from "moment";
 
 export default class Event extends Abstract {
   constructor({
@@ -23,18 +24,6 @@ export default class Event extends Abstract {
     this._days = getDurationTime(this._timeStartEvent, this._timeFinishEvent).days;
     this._hours = getDurationTime(this._timeStartEvent, this._timeFinishEvent).hours;
     this._minutes = getDurationTime(this._timeStartEvent, this._timeFinishEvent).minutes;
-    this._timeStartEventFormat = this.getFormattingTime(this._timeStartEvent);
-    this._timeStartEventIsoFormat = this.getFormattingIsoTime(this._timeStartEvent);
-    this._timeFinishEventFormat = this.getFormattingTime(this._timeFinishEvent);
-    this._timeFinishEventIsoFormat = this.getFormattingIsoTime(this._timeFinishEvent);
-  }
-
-  getFormattingIsoTime(time) {
-    return new Date(time).toISOString().substr(0, 16);
-  }
-
-  getFormattingTime(time) {
-    return new Date(time).toTimeString().substr(0, 5);
   }
 
   getEventOffers() {
@@ -57,9 +46,9 @@ export default class Event extends Abstract {
 
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time" datetime="${this._timeStartEventIsoFormat}">${this._timeStartEventFormat}</time>
+              <time class="event__start-time" datetime="${moment(this._timeStartEvent).format().slice(0, -9)}">${moment(this._timeStartEvent).format(`H:mm`)}</time>
               &mdash;
-              <time class="event__end-time" datetime="${this._timeFinishEventIsoFormat}">${this._timeFinishEventFormat}</time>
+              <time class="event__end-time" datetime="${moment(this._timeFinishEvent).format().slice(0, -9)}">${moment(this._timeFinishEvent).format(`H:mm`)}</time>
             </p>
             <p class="event__duration">${this._days} ${this._hours} ${this._minutes}</p>
           </div>

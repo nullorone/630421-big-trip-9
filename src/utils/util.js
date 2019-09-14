@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const DAY_IN_WEEK = 7;
 const HOURS_IN_DAY = 24;
 const MINUTES_IN_HOUR = 60;
@@ -34,28 +36,16 @@ const getShuffleArray = (array) => {
   return cloneArray;
 };
 
-const convertTimeData = (time) => {
-  const times = time.split(` `);
-  const date = times[0].split(`/`).reverse().join(`-`);
-  const newTime = `${date} ${times[1]}`;
-  return Date.parse(newTime);
-};
-
 const getDurationTime = (timeStart, timeFinish) => {
   const diffTime = Math.abs(timeFinish - timeStart);
-
-  let minutes = Math.floor(diffTime / 1000 / 60) % 60;
-  let hours = Math.floor(diffTime / 1000 / 60 / 60) % 24;
-  let days = Math.floor((diffTime / 1000 / 60 / 60) / 24);
-
-  minutes = minutes ? `${minutes}M` : ``;
-  hours = hours ? `${hours}H` : ``;
-  days = days ? `${days}D` : ``;
+  const days = moment.utc(timeFinish).diff(moment.utc(timeStart), `days`);
+  const hours = moment.utc(diffTime).format(`H[H]`);
+  const minutes = moment.utc(diffTime).format(`mm[M]`);
 
   return {
-    days,
-    hours,
-    minutes,
+    days: days !== 0 ? `${days}D` : ``,
+    hours: hours !== `0H` ? hours : ``,
+    minutes: minutes !== `00M` ? minutes : ``,
   };
 };
 
@@ -86,7 +76,6 @@ export {
   getRandomImage,
   getSortEventList,
   createElement,
-  convertTimeData,
   getDurationTime,
 };
 
