@@ -1,7 +1,10 @@
 import Event from "../components/event";
 import EventEdit from "../components/eventEdit";
-import {renderComponent, convertTimeData, createElement, unrenderComponent} from "../utils/util";
+import {renderComponent, createElement, unrenderComponent} from "../utils/util";
 import {getOffers, getRandomDescription} from "../data";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
+import "flatpickr/dist/themes/airbnb.css"
 
 export default class PointController {
   constructor(container, data, onDataChange, onChangeView) {
@@ -11,6 +14,27 @@ export default class PointController {
     this._eventEdit = new EventEdit(this._data);
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
+    this._eventEditStartTime = flatpickr(this._eventEdit.getElement().querySelector(`#event-start-time-1`), {
+      defaultDate: new Date(this._eventEdit._timeStartEvent),
+      altInput: true,
+      altFormat: `Y/m/d H:i`,
+      dateFormat: `Y/m/d H:i`,
+      minDate: new Date(this._eventEdit._timeStartEvent),
+      maxDate: new Date(this._eventEdit._timeFinishEvent),
+      enableTime: true,
+      minTime: new Date(this._eventEdit._timeStartEvent).toLocaleTimeString(),
+      maxTime: new Date(this._eventEdit._timeFinishEvent).toLocaleTimeString(),
+    });
+    this._eventEditFinishTime = flatpickr(this._eventEdit.getElement().querySelector(`#event-end-time-1`), {
+      defaultDate: new Date(this._eventEdit._timeFinishEvent),
+      altInput: true,
+      altFormat: `Y/m/d H:i`,
+      dateFormat: `Y/m/d H:i`,
+      minDate: new Date(this._eventEdit._timeFinishEvent),
+      enableTime: true,
+      minTime: new Date(this._eventEdit._timeFinishEvent).toLocaleTimeString(),
+      maxTime: `23:59`,
+    });
 
     this.init();
   }
@@ -121,8 +145,8 @@ export default class PointController {
           img: eventImages,
           description: this._eventEdit.getElement().querySelector(`.event__destination-description`).innerText,
           time: {
-            timeStartEvent: convertTimeData(formData.get(`event-start-time`)),
-            timeFinishEvent: convertTimeData(formData.get(`event-end-time`)),
+            timeStartEvent: Date.parse(formData.get(`event-start-time`)),
+            timeFinishEvent: Date.parse(formData.get(`event-end-time`)),
           },
           price: formData.get(`event-price`),
           offers: eventOffers,
