@@ -4,7 +4,7 @@ import {renderComponent, createElement, unrenderComponent} from "../utils/util";
 import {getOffers, getRandomDescription} from "../data";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
-import "flatpickr/dist/themes/airbnb.css"
+import "flatpickr/dist/themes/airbnb.css";
 
 export default class PointController {
   constructor(container, data, onDataChange, onChangeView) {
@@ -124,6 +124,10 @@ export default class PointController {
       .querySelector(`.event__save-btn`)
       .addEventListener(`click`, (evt) => {
         evt.preventDefault();
+
+    this._eventEdit.getElement()
+      .querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, this._onDataChange(null, this._data));
 
         const formData = new FormData(this._eventEdit.getElement().querySelector(`.event`));
 

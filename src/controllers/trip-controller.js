@@ -10,6 +10,8 @@ export default class TripController {
     this._events = events.slice();
     this._sort = new Sort();
     this._days = new Days();
+    this._info = new Info(this._events);
+    this._tripEventsContainer = document.querySelector(`.trip-events`);
     this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
     this._subscriptions = [];
     this._onChangeView = this._onChangeView.bind(this);
@@ -46,17 +48,23 @@ export default class TripController {
     sumCost.textContent = events.map(({price}) => Number(price)).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
   }
 
+  hide() {
+    this._tripEventsContainer.classList.add(`visually-hidden`);
+  }
+
+  show() {
+    this._tripEventsContainer.classList.remove(`visually-hidden`);
+  }
+
   init() {
     const tripEvents = document.querySelector(`.trip-events > h2`);
     const tripInfo = document.querySelector(`.trip-info`);
     const noEventsMarkup = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
 
     if (this._events.length) {
-      const info = new Info(this._events);
-
       renderComponent(tripEvents, this._days.getElement());
       renderComponent(tripEvents, this._sort.getElement());
-      renderComponent(tripInfo, info.getElement(), `afterbegin`);
+      renderComponent(tripInfo, this._info.getElement(), `afterbegin`);
       this._sort.getElement().addEventListener(`click`, this._onSortButtonClick.bind(this), true);
       this._renderDays(this._uniqueEvents);
       this.getSumCostTrip(this._events);
@@ -102,6 +110,7 @@ export default class TripController {
   }
 
   _onDataChange(newEvent, oldEvent) {
+    console.log(newEvent)
     this._events[this._events.findIndex((it) => it === oldEvent)] = newEvent;
     this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
     this._renderDays(this._uniqueEvents);
@@ -118,6 +127,7 @@ export default class TripController {
   }
 
   _renderDays(uniqueEvents) {
+    console.log(uniqueEvents)
     const tripEvents = document.querySelector(`.trip-events`);
     if (document.querySelector(`.trip-days`)) {
       unrenderComponent(this._days.getElement());
