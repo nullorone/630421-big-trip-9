@@ -3,27 +3,17 @@ import {types, CITIES} from "../data";
 import Abstract from "./abstract";
 
 export default class EventEdit extends Abstract {
-  constructor({
-    type: {iconSrc, title},
-    price,
-    city,
-    img,
-    offers,
-    time: {
-      timeStartEvent,
-      timeFinishEvent,
-    },
-    description}) {
+  constructor(mockEvent) {
     super();
-    this._iconSrc = iconSrc;
-    this._title = title;
-    this._price = price;
-    this._city = city;
-    this._img = img;
-    this._offers = offers;
-    this._description = description;
-    this._timeStartEvent = timeStartEvent;
-    this._timeFinishEvent = timeFinishEvent;
+    this._iconSrc = mockEvent.type.iconSrc;
+    this._title = mockEvent.type.title;
+    this._price = mockEvent.price;
+    this._city = mockEvent.city;
+    this._offers = mockEvent.offers;
+    this._timeStartEvent = mockEvent.time.timeStartEvent;
+    this._timeFinishEvent = mockEvent.time.timeFinishEvent;
+    this._img = mockEvent.img;
+    this._description = mockEvent.description;
     this._timeStartEventValueFormat = this.getFormattingTimeValue(this._timeStartEvent);
     this._timeFinishEventValueFormat = this.getFormattingTimeValue(this._timeFinishEvent);
   }

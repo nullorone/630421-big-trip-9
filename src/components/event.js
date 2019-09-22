@@ -4,23 +4,15 @@ import {getDurationTime} from "../utils/util";
 import moment from "moment";
 
 export default class Event extends Abstract {
-  constructor({
-    type: {iconSrc, title},
-    price,
-    city,
-    offers,
-    time: {
-      timeStartEvent,
-      timeFinishEvent,
-    }}) {
+  constructor(mockEvent) {
     super();
-    this._iconSrc = iconSrc;
-    this._title = title;
-    this._price = price;
-    this._city = city;
-    this._offers = offers;
-    this._timeStartEvent = timeStartEvent;
-    this._timeFinishEvent = timeFinishEvent;
+    this._iconSrc = mockEvent.type.iconSrc;
+    this._title = mockEvent.type.title;
+    this._price = mockEvent.price;
+    this._city = mockEvent.city;
+    this._offers = mockEvent.offers;
+    this._timeStartEvent = mockEvent.time.timeStartEvent;
+    this._timeFinishEvent = mockEvent.time.timeFinishEvent;
     this._days = getDurationTime(this._timeStartEvent, this._timeFinishEvent).days;
     this._hours = getDurationTime(this._timeStartEvent, this._timeFinishEvent).hours;
     this._minutes = getDurationTime(this._timeStartEvent, this._timeFinishEvent).minutes;

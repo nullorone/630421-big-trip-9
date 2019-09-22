@@ -1,13 +1,13 @@
 import Event from "../components/event";
 import EventEdit from "../components/eventEdit";
 import {renderComponent, createElement, unrenderComponent} from "../utils/util";
-import {getOffers, getRandomDescription} from "../data";
+import {getOffers, getRandomDescription, Mode} from "../data";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
-import "flatpickr/dist/themes/airbnb.css"
+import "flatpickr/dist/themes/airbnb.css";
 
 export default class PointController {
-  constructor(container, data, onDataChange, onChangeView) {
+  constructor(container, mode, data, onDataChange, onChangeView) {
     this._container = container;
     this._data = data;
     this._event = new Event(this._data);
@@ -36,13 +36,45 @@ export default class PointController {
       maxTime: `23:59`,
     });
 
-    this.init();
+    this.init(mode);
   }
 
-  init() {
+  init(createMode) {
+    let renderPosition = `beforeend`;
+    let currentView = this._event;
+
+    if (createMode === Mode.ADDING) {
+      currentView = this._eventEdit;
+      renderPosition = `afterbegin`;
+    }
+
+    flatpickr(this._eventEdit.getElement().querySelector(`#event-start-time-1`), {
+      defaultDate: new Date(this._eventEdit._timeStartEvent),
+      altInput: true,
+      altFormat: `Y/m/d H:i`,
+      dateFormat: `Y/m/d H:i`,
+      minDate: new Date(this._eventEdit._timeStartEvent),
+      enableTime: true,
+      minTime: new Date(this._eventEdit._timeStartEvent).toLocaleTimeString(),
+      maxTime: `23:59`,
+    });
+
     const onEventEditEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
-        this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
+        if (createMode === Mode.DEFAULT) {
+          if (this._container.getElement().contains(this._eventEdit.getElement())) {
+            this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
+          }
+        } else if (createMode === Mode.ADDING) {
+          this._container.removeChild(currentView.getElement());
+
+          currentView.getElement()
+            .querySelector(`.event__reset-btn`)
+            .addEventListener(`click`, () => {
+              this._onDataChange(null, null);
+            });
+        }
+
         document.removeEventListener(`keydown`, onEventEditEscKeyDown);
       }
     };
@@ -61,8 +93,6 @@ export default class PointController {
       document.removeEventListener(`keydown`, onEventEditEscKeyDown);
       this._eventEdit.getElement().removeEventListener(`click`, onEventEditRollupButtonClick);
     };
-
-    const onEventEditSubmit = onEventEditRollupButtonClick;
 
     const onTypeClick = (evt) => {
       const target = evt.target;
@@ -109,10 +139,6 @@ export default class PointController {
       .addEventListener(`click`, onEventEditRollupButtonClick);
 
     this._eventEdit.getElement()
-      .querySelector(`form`)
-      .addEventListener(`submit`, onEventEditSubmit);
-
-    this._eventEdit.getElement()
       .querySelector(`.event__type-list`)
       .addEventListener(`click`, onTypeClick, true);
 
@@ -121,20 +147,20 @@ export default class PointController {
       .addEventListener(`change`, onDestinationChange);
 
     this._eventEdit.getElement()
-      .querySelector(`.event__save-btn`)
-      .addEventListener(`click`, (evt) => {
+      .querySelector(`form`)
+      .addEventListener(`submit`, (evt) => {
         evt.preventDefault();
 
         const formData = new FormData(this._eventEdit.getElement().querySelector(`.event`));
 
         const eventImages = Array.from(this._eventEdit.getElement().querySelectorAll(`.event__photo`)).map((image) => image.src);
 
-        const eventOffers = Array.from(this._eventEdit.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
+        const eventOffers = new Set(Array.from(this._eventEdit.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
           id: offer.querySelector(`.event__offer-checkbox`).name.slice(12),
           title: offer.querySelector(`.event__offer-title`).innerText,
           price: offer.querySelector(`.event__offer-price`).innerText,
           isChecked: offer.querySelector(`.event__offer-checkbox`).checked,
-        }));
+        })));
 
         const entry = {
           type: {
@@ -148,14 +174,23 @@ export default class PointController {
             timeStartEvent: Date.parse(formData.get(`event-start-time`)),
             timeFinishEvent: Date.parse(formData.get(`event-end-time`)),
           },
-          price: formData.get(`event-price`),
+          price: Number(formData.get(`event-price`)),
           offers: eventOffers,
         };
 
-        this._onDataChange(entry, this._data);
+        this._onDataChange(entry, (createMode === Mode.DEFAULT) ? this._data : null);
+
+        this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
       });
 
-    renderComponent(this._container, this._event.getElement(), `beforeend`);
+
+    this._eventEdit.getElement()
+      .querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, () => {
+        this._onDataChange(null, this._data);
+      });
+
+    renderComponent(this._container, currentView.getElement(), renderPosition);
   }
 
   setDefaultView() {

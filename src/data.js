@@ -17,6 +17,10 @@ const DESCRIPTION_TEXTS = [
 const IMAGE_AMOUNT = 4;
 const OFFER_AMOUNT = 2;
 const TIME_RANGE = 10000000;
+const Mode = {
+  ADDING: `adding`,
+  DEFAULT: `default`,
+};
 
 const CITIES = [`Auckland`, `Hamilton`, `Wellington`, `Christchurch`, `Tauranga`];
 
@@ -217,4 +221,4 @@ const getMockEvent = () => ({
 });
 
 
-export {getMockEvent, getOffers, getRandomDescription, types, CITIES, menuTitles, filters};
+export {getMockEvent, getOffers, getRandomDescription, types, CITIES, menuTitles, filters, Mode};

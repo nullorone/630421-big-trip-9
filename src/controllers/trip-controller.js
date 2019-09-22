@@ -1,19 +1,23 @@
 import Info from "../components/info";
-import {createElement, renderComponent, unrenderComponent} from "../utils/util";
+import {createElement, getSortEventList, renderComponent, unrenderComponent} from "../utils/util";
 import Day from "../components/day";
 import Sort from "../components/sort";
 import Days from "../components/days";
 import PointController from "./point-controller";
+import {Mode} from "../data";
 
 export default class TripController {
   constructor(events) {
     this._events = events.slice();
     this._sort = new Sort();
     this._days = new Days();
+    this._info = new Info(this._events);
+    this._tripEventsContainer = document.querySelector(`.trip-events`);
     this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
     this._subscriptions = [];
     this._onChangeView = this._onChangeView.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
+    this._creatingEvent = null;
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]
@@ -46,17 +50,48 @@ export default class TripController {
     sumCost.textContent = events.map(({price}) => Number(price)).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
   }
 
+  hide() {
+    this._tripEventsContainer.classList.add(`visually-hidden`);
+  }
+
+  show() {
+    this._tripEventsContainer.classList.remove(`visually-hidden`);
+  }
+
+  createEvent() {
+    if (this._creatingEvent) {
+      return;
+    }
+
+    const defaultEvent = {
+      type: {
+        iconSrc: ``,
+        title: ``,
+      },
+      city: ``,
+      img: [],
+      description: ``,
+      time: {
+        timeStartEvent: new Date(),
+        timeFinishEvent: new Date(),
+      },
+      price: 0,
+      offers: new Set(),
+    };
+
+    this._creatingEvent = new PointController(this._days.getElement(), Mode.ADDING, defaultEvent, this._onDataChange, this._onChangeView);
+
+  }
+
   init() {
     const tripEvents = document.querySelector(`.trip-events > h2`);
     const tripInfo = document.querySelector(`.trip-info`);
     const noEventsMarkup = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
 
     if (this._events.length) {
-      const info = new Info(this._events);
-
       renderComponent(tripEvents, this._days.getElement());
       renderComponent(tripEvents, this._sort.getElement());
-      renderComponent(tripInfo, info.getElement(), `afterbegin`);
+      renderComponent(tripInfo, this._info.getElement(), `afterbegin`);
       this._sort.getElement().addEventListener(`click`, this._onSortButtonClick.bind(this), true);
       this._renderDays(this._uniqueEvents);
       this.getSumCostTrip(this._events);
@@ -102,7 +137,18 @@ export default class TripController {
   }
 
   _onDataChange(newEvent, oldEvent) {
-    this._events[this._events.findIndex((it) => it === oldEvent)] = newEvent;
+    const indexEvent = this._events.findIndex((event) => event === oldEvent);
+    if (newEvent === null && oldEvent === null) {
+      this._creatingEvent = null;
+    } else if (newEvent === null) {
+      this._events = [...this._events.slice(0, indexEvent), ...this._events.slice(indexEvent + 1)];
+    } else if (oldEvent === null) {
+      this._creatingEvent = null;
+      this._events = [newEvent, ...this._events].slice().sort(getSortEventList);
+    } else {
+      this._events[indexEvent] = newEvent;
+    }
+
     this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
     this._renderDays(this._uniqueEvents);
     this.getSumCostTrip(this._events);
@@ -110,7 +156,7 @@ export default class TripController {
 
   _renderEvents(eventsContainer, eventsDay) {
     eventsDay.forEach((event) => {
-      const pointController = new PointController(eventsContainer, event, this._onDataChange, this._onChangeView);
+      const pointController = new PointController(eventsContainer, Mode.DEFAULT, event, this._onDataChange, this._onChangeView);
       this._subscriptions.push(pointController.setDefaultView.bind(pointController));
 
       return pointController;
