@@ -54,7 +54,7 @@ const getRandomBoolean = () => {
   return Boolean(Math.round(Math.random()));
 };
 
-const getDayTime = () => Date.now() + 1 + getRandomNumber(0, DAY_IN_WEEK) * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
+const getDayTime = () => Date.now() - getRandomNumber(0, DAY_IN_WEEK) * HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLISECONDS_IN_SECOND;
 
 const getRandomImage = () => `http://picsum.photos/300/150?r=${Math.random()}`;
 
