@@ -3,15 +3,20 @@ import {createElement, getSortEventList, renderComponent, unrenderComponent} fro
 import Day from "../components/day";
 import Sort from "../components/sort";
 import Days from "../components/days";
+import Stats from "../components/stats";
 import PointController from "./point-controller";
 import {Mode} from "../data";
+import StatsController from "./stats-controller";
+import FilterController from "./filter-controller";
 
 export default class TripController {
   constructor(events) {
     this._events = events.slice();
     this._sort = new Sort();
     this._days = new Days();
+    this._stats = new Stats();
     this._info = new Info(this._events);
+    this._filterController = new FilterController(this._onFilterChange.bind(this));
     this._tripEventsContainer = document.querySelector(`.trip-events`);
     this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
     this._subscriptions = [];
@@ -65,6 +70,7 @@ export default class TripController {
 
     const defaultEvent = {
       type: {
+        id: ``,
         iconSrc: ``,
         title: ``,
       },
@@ -83,6 +89,22 @@ export default class TripController {
 
   }
 
+  renderDays(uniqueEvents) {
+    if (document.querySelector(`.trip-days`)) {
+      unrenderComponent(this._days.getElement());
+      this._days.removeElement();
+    }
+    this._days = new Days();
+    renderComponent(this._tripEventsContainer, this._days.getElement(), `beforeend`);
+    uniqueEvents.forEach((uniqueDay, index) => {
+      const day = new Day(uniqueDay[0], index + 1);
+      renderComponent(this._days.getElement(), day.getElement(), `beforeend`);
+
+      const eventsContainer = day.getElement().querySelector(`.trip-events__list`);
+      this._renderEvents(eventsContainer, uniqueDay);
+    });
+  }
+
   init() {
     const tripEvents = document.querySelector(`.trip-events > h2`);
     const tripInfo = document.querySelector(`.trip-info`);
@@ -92,11 +114,42 @@ export default class TripController {
       renderComponent(tripEvents, this._days.getElement());
       renderComponent(tripEvents, this._sort.getElement());
       renderComponent(tripInfo, this._info.getElement(), `afterbegin`);
+      renderComponent(this._tripEventsContainer, this._stats.getElement(), `afterend`);
       this._sort.getElement().addEventListener(`click`, this._onSortButtonClick.bind(this), true);
-      this._renderDays(this._uniqueEvents);
+      this._filterController.init(this._uniqueEvents);
+      this.renderDays(this._uniqueEvents);
       this.getSumCostTrip(this._events);
+      document.querySelector(`.trip-tabs`).addEventListener(`click`, this._onTripTabsClick.bind(this), true);
+
+      this._stats.getElement().classList.add(`visually-hidden`);
     } else {
       renderComponent(tripEvents, createElement(noEventsMarkup));
+    }
+  }
+
+  _onFilterChange(filteredEvents) {
+    this._days.getElement().innerHTML = ``;
+    this.renderDays(filteredEvents);
+  }
+
+  _onTripTabsClick(evt) {
+    const target = evt.target;
+    const isActiveTarget = target.className.includes(`trip-tabs__btn--active`);
+    const statsController = new StatsController(this._stats.getElement(), this._events);
+
+    switch (true) {
+      case (target.innerText === `Stats` && !isActiveTarget):
+        target.classList.add(`trip-tabs__btn--active`);
+        target.previousElementSibling.classList.remove(`trip-tabs__btn--active`);
+        statsController.show();
+        this.hide();
+        break;
+      case (target.innerText === `Table` && !isActiveTarget):
+        target.classList.add(`trip-tabs__btn--active`);
+        target.nextElementSibling.classList.remove(`trip-tabs__btn--active`);
+        statsController.hide();
+        this.show();
+        break;
     }
   }
 
@@ -127,7 +180,7 @@ export default class TripController {
         this._renderEvents(day.querySelector(`.trip-events__list`), sortedByPriceEvents);
         break;
       default:
-        this._renderDays(this._uniqueEvents);
+        this.renderDays(this._uniqueEvents);
         break;
     }
   }
@@ -150,7 +203,8 @@ export default class TripController {
     }
 
     this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-    this._renderDays(this._uniqueEvents);
+    this.renderDays(this._uniqueEvents);
+    this._filterController.init(this._uniqueEvents);
     this.getSumCostTrip(this._events);
   }
 
@@ -160,23 +214,6 @@ export default class TripController {
       this._subscriptions.push(pointController.setDefaultView.bind(pointController));
 
       return pointController;
-    });
-  }
-
-  _renderDays(uniqueEvents) {
-    const tripEvents = document.querySelector(`.trip-events`);
-    if (document.querySelector(`.trip-days`)) {
-      unrenderComponent(this._days.getElement());
-      this._days.removeElement();
-    }
-    this._days = new Days();
-    renderComponent(tripEvents, this._days.getElement(), `beforeend`);
-    uniqueEvents.forEach((uniqueDay, index) => {
-      const day = new Day(uniqueDay[0], index + 1);
-      renderComponent(this._days.getElement(), day.getElement(), `beforeend`);
-
-      const eventsContainer = day.getElement().querySelector(`.trip-events__list`);
-      this._renderEvents(eventsContainer, uniqueDay);
     });
   }
 }
