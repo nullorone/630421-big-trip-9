@@ -62,7 +62,7 @@ export default class StatsController {
             font: {
               size: 14,
             },
-            formatter: function (value) {
+            formatter(value) {
               return `€ ${value}`;
             },
             anchor: `end`,
@@ -96,6 +96,7 @@ export default class StatsController {
         }
       },
     });
+    initMoneyStats.update();
   }
 
   setTransportStats() {
@@ -156,7 +157,7 @@ export default class StatsController {
             font: {
               size: 14,
             },
-            formatter: function (value) {
+            formatter(value) {
               return `${value}x`;
             },
             anchor: `end`,
@@ -190,6 +191,7 @@ export default class StatsController {
         }
       },
     });
+    initTransportStats.update();
   }
 
   setTimeSpentStats() {
@@ -246,7 +248,7 @@ export default class StatsController {
             font: {
               size: 14,
             },
-            formatter: function (value) {
+            formatter(value) {
               return `${getFormatingTime(value).days} ${getFormatingTime(value).hours} ${getFormatingTime(value).minutes}`;
             },
             anchor: `end`,
@@ -280,6 +282,7 @@ export default class StatsController {
         }
       },
     });
+    initTimeSpentStats.update();
   }
 
   init() {
