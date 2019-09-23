@@ -25,7 +25,7 @@ export default class FilterController {
           this._onFilterChange(futureEvents);
           break;
         case (target.checked && target.value === `past`):
-          const pastEvents = events.slice().filter((event) => event[0].time.timeStartEvent < Date.now());
+          const pastEvents = events.slice().filter((event) => event[0].time.timeFinishEvent < Date.now());
           this._onFilterChange(pastEvents);
           break;
         default:
