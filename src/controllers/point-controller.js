@@ -162,8 +162,15 @@ export default class PointController {
           isChecked: offer.querySelector(`.event__offer-checkbox`).checked,
         })));
 
+        const getTypeId = () => {
+          const imgSrc = this._eventEdit.getElement().querySelector(`.event__type-icon`).src;
+
+          return imgSrc.substring(imgSrc.lastIndexOf(`/`) + 1, imgSrc.length - 4);
+        };
+
         const entry = {
           type: {
+            id: getTypeId(),
             iconSrc: this._eventEdit.getElement().querySelector(`.event__type-icon`).src,
             title: this._eventEdit.getElement().querySelector(`.event__type-output`).innerText,
           },
