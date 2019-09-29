@@ -1,10 +1,11 @@
 import Event from "../components/event";
 import EventEdit from "../components/eventEdit";
 import {renderComponent, createElement, unrenderComponent} from "../utils/util";
-import {getOffers, getRandomDescription, Mode} from "../data";
+import {apiData, getOffers, getRandomDescription, Mode} from "../data";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/airbnb.css";
+import Api from "../api";
 
 export default class PointController {
   constructor(container, mode, data, onDataChange, onChangeView) {
@@ -14,6 +15,7 @@ export default class PointController {
     this._eventEdit = new EventEdit(this._data);
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
+    this._api = new Api(apiData);
     this._eventEditStartTime = flatpickr(this._eventEdit.getElement().querySelector(`#event-start-time-1`), {
       defaultDate: new Date(this._eventEdit._timeStartEvent),
       altInput: true,
@@ -35,8 +37,14 @@ export default class PointController {
       minTime: new Date(this._eventEdit._timeFinishEvent).toLocaleTimeString(),
       maxTime: `23:59`,
     });
+    this._apiOffers = null;
 
     this.init(mode);
+    this._api.getOffers().then(this._saveOffers.bind(this));
+  }
+
+  _saveOffers(offers) {
+    this._apiOffers = offers;
   }
 
   init(createMode) {
@@ -108,7 +116,10 @@ export default class PointController {
       let eventTypeOutputTitle = this._eventEdit.getElement().querySelector(`.event__type-output`);
       const offerContainer = this._eventEdit.getElement().querySelector(`.event__section--offers`);
       const detailsContainer = this._eventEdit.getElement().querySelector(`.event__details`);
-      const newOffers = createElement(this._eventEdit.getEventOffers(new Set(getOffers())));
+      const offersOfType = this._apiOffers.find(({type}) => valueTypeInput === type);
+      const newOffers = offersOfType.offers.length > 1 ?
+        createElement(this._eventEdit.getOffers(offersOfType.offers.slice(0, 2))) :
+        createElement(``);
 
       eventTypeIconSrc.src = `./img/icons/${valueTypeInput}.png`;
       eventTypeOutputTitle.innerText = typeTitle;
@@ -162,6 +173,8 @@ export default class PointController {
           isChecked: offer.querySelector(`.event__offer-checkbox`).checked,
         })));
 
+        const eventFavorite = this._eventEdit.getElement().querySelector(`.event__favorite-checkbox`);
+
         const getTypeId = () => {
           const imgSrc = this._eventEdit.getElement().querySelector(`.event__type-icon`).src;
 
@@ -183,6 +196,7 @@ export default class PointController {
           },
           price: Number(formData.get(`event-price`)),
           offers: eventOffers,
+          favorite: eventFavorite.checked,
         };
 
         this._onDataChange(entry, (createMode === Mode.DEFAULT) ? this._data : null);

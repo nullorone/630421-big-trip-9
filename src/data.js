@@ -24,63 +24,70 @@ const Mode = {
 
 const CITIES = [`Auckland`, `Hamilton`, `Wellington`, `Christchurch`, `Tauranga`];
 
+const API_URL = `https://htmlacademy-es-9.appspot.com/big-trip`;
+
+const apiData = {
+  endPoint: API_URL,
+  authorization: `htmlacademy2019`,
+};
+
 const offers = [
   {
-    id: `luggage`,
+    name: `Add luggage`,
     title: `Add luggage`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `comfort`,
+    name: `Switch to comfort class`,
     title: `Switch to comfort class`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `meal`,
+    name: `Add meal`,
     title: `Add meal`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `seats`,
+    name: `Choose seats`,
     title: `Choose seats`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `train`,
+    name: `Travel by train`,
     title: `Travel by train`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `tickets`,
+    name: `Book tickets`,
     title: `Book tickets`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `lunch`,
+    name: `Lunch in city`,
     title: `Lunch in city`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `breakfast`,
+    name: `Add breakfast`,
     title: `Add breakfast`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `car`,
+    name: `Rent a car`,
     title: `Rent a car`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
   },
   {
-    id: `uber`,
+    name: `Order Uber`,
     title: `Order Uber`,
     price: getRandomNumber(0, 100),
     isChecked: getRandomBoolean(),
@@ -221,4 +228,13 @@ const getMockEvent = () => ({
 });
 
 
-export {getMockEvent, getOffers, getRandomDescription, types, CITIES, menuTitles, filters, Mode};
+export {
+  getMockEvent,
+  getOffers,
+  getRandomDescription,
+  types,
+  CITIES,
+  menuTitles,
+  filters,
+  Mode,
+  apiData};
