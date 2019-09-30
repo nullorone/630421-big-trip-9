@@ -1,3 +1,5 @@
+import ModelEvent from "./model/model-event";
+
 const Method = {
   POST: `POST`,
   GET: `GET`,
@@ -29,10 +31,6 @@ export default class Api {
     this._authorization = authorization;
   }
 
-  getResult(result) {
-    return result;
-  }
-
   createEvent({event}) {
   }
 
@@ -55,7 +53,13 @@ export default class Api {
     });
   }
 
-  updateEvent({id, data}) {
+  updateEvent(event) {
+    return this._load({
+      url: `points/${event.id}`,
+      method: Method.PUT,
+      body: JSON.stringify(event.toRAW),
+      headers: new Headers({'Content-Type': `application/json`})
+    }).then(toJSON).then(ModelEvent.parseEvent);
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
