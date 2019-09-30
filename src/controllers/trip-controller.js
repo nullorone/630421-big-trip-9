@@ -8,7 +8,6 @@ import PointController from "./point-controller";
 import {apiData, Mode} from "../data";
 import Api from "../api";
 import ModelEvent from "../model/model-event";
-import {Mode} from "../data";
 import StatsController from "./stats-controller";
 import FilterController from "./filter-controller";
 
@@ -18,7 +17,6 @@ export default class TripController {
     this._sort = new Sort();
     this._days = new Days();
     this._stats = new Stats();
-    this._info = new Info(this._events);
     this._filterController = new FilterController(this._onFilterChange.bind(this));
     this._tripEventsContainer = document.querySelector(`.trip-events`);
     this._uniqueEvents = null;
@@ -26,6 +24,7 @@ export default class TripController {
     this._onChangeView = this._onChangeView.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
     this._creatingEvent = null;
+    this._api = new Api(apiData);
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]
@@ -109,10 +108,8 @@ export default class TripController {
   }
 
   init(events) {
-      console.log(events)
-      this._events = events;
-      this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(events.slice()));
-    }
+    this._events = events;
+    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(events.slice()));
     const tripEvents = document.querySelector(`.trip-events > h2`);
     const tripInfo = document.querySelector(`.trip-info`);
     const noEventsMarkup = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
@@ -202,20 +199,30 @@ export default class TripController {
     if (newEvent === null && oldEvent === null) {
       this._creatingEvent = null;
     } else if (newEvent === null) {
-      new Api(apiData).deleteEvent(oldEvent);
-      // new Api(apiData).getPoints().then(ModelEvent.parseEvents).then(console.log)
-      this._events = [...this._events.slice(0, indexEvent), ...this._events.slice(indexEvent + 1)];
+      this._api.deleteEvent(oldEvent).then(() => this._api.getPoints()).then(ModelEvent.parseEvents).then((events) => {
+        this._events = events;
+        this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+        this.renderDays(this._uniqueEvents);
+        this._filterController.init(this._uniqueEvents);
+        this.getSumCostTrip(this._events);
+      });
     } else if (oldEvent === null) {
       this._creatingEvent = null;
       this._events = [newEvent, ...this._events].slice().sort(getSortEventList);
     } else {
-      this._events[indexEvent] = newEvent;
+      this._api.updateEvent(newEvent).then((event) => {
+        this._events[indexEvent] = event;
+        this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+        this.renderDays(this._uniqueEvents);
+        this._filterController.init(this._uniqueEvents);
+        this.getSumCostTrip(this._events);
+      });
     }
 
-    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-    this.renderDays(this._uniqueEvents);
-    this._filterController.init(this._uniqueEvents);
-    this.getSumCostTrip(this._events);
+    // this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+    // this.renderDays(this._uniqueEvents);
+    // this._filterController.init(this._uniqueEvents);
+    // this.getSumCostTrip(this._events);
   }
 
   _renderEvents(eventsContainer, eventsDay) {
