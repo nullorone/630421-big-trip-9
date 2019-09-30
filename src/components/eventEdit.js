@@ -2,10 +2,12 @@
 import {types, apiData} from "../data";
 import Abstract from "./abstract";
 import Api from "../api";
+import flatpickr from "flatpickr";
 
 export default class EventEdit extends Abstract {
   constructor(mockEvent) {
     super();
+    this._id = mockEvent.id;
     this._iconSrc = mockEvent.type.iconSrc;
     this._title = mockEvent.type.title;
     this._price = mockEvent.price;
@@ -13,11 +15,31 @@ export default class EventEdit extends Abstract {
     this._offers = mockEvent.offers;
     this._timeStartEvent = mockEvent.time.timeStartEvent;
     this._timeFinishEvent = mockEvent.time.timeFinishEvent;
-    this._img = mockEvent.img;
+    this._images = mockEvent.images;
     this._description = mockEvent.description;
     this._timeStartEventValueFormat = this.getFormattingTimeValue(this._timeStartEvent);
     this._timeFinishEventValueFormat = this.getFormattingTimeValue(this._timeFinishEvent);
     this._favorite = mockEvent.favorite;
+    this._eventEditStartTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-start-time]`), {
+      defaultDate: new Date(this._timeStartEvent),
+      altInput: true,
+      altFormat: `Y/m/d H:i`,
+      dateFormat: `Y/m/d H:i`,
+      minDate: new Date(this._timeStartEvent),
+      enableTime: true,
+      minTime: new Date(this._timeStartEvent).toLocaleTimeString(),
+      maxTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
+    });
+    this._eventEditFinishTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-end-time]`), {
+      defaultDate: new Date(this._timeFinishEvent),
+      altInput: true,
+      altFormat: `Y/m/d H:i`,
+      dateFormat: `Y/m/d H:i`,
+      minDate: new Date(this._timeFinishEvent),
+      enableTime: true,
+      minTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
+      maxTime: `23:59`,
+    });
     this._api = new Api(apiData);
 
     this._api.getDestinations().then(this.generateDestinations.bind(this));
@@ -81,7 +103,7 @@ export default class EventEdit extends Abstract {
   }
 
   getEventImg() {
-    return this._img.map((src) => `<img class="event__photo" src="${src}" alt="Event photo">`.trim()).join(``);
+    return this._images.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`.trim()).join(``);
   }
 
   insertDestinationList(destinations) {
@@ -102,7 +124,7 @@ export default class EventEdit extends Abstract {
 
   getTemplate() {
     return `
-<li class="trip-events__item">
+<li class="trip-events__item" data-event-id="${this._id}">
     <form class="event  event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
