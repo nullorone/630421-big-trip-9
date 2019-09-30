@@ -1,10 +1,13 @@
 // Разметка формы редактирования события путешествия
-import {types, CITIES} from "../data";
+import {types, apiData} from "../data";
 import Abstract from "./abstract";
+import Api from "../api";
+import flatpickr from "flatpickr";
 
 export default class EventEdit extends Abstract {
   constructor(mockEvent) {
     super();
+    this._id = mockEvent.id;
     this._iconSrc = mockEvent.type.iconSrc;
     this._title = mockEvent.type.title;
     this._price = mockEvent.price;
@@ -12,10 +15,34 @@ export default class EventEdit extends Abstract {
     this._offers = mockEvent.offers;
     this._timeStartEvent = mockEvent.time.timeStartEvent;
     this._timeFinishEvent = mockEvent.time.timeFinishEvent;
-    this._img = mockEvent.img;
+    this._images = mockEvent.images;
     this._description = mockEvent.description;
     this._timeStartEventValueFormat = this.getFormattingTimeValue(this._timeStartEvent);
     this._timeFinishEventValueFormat = this.getFormattingTimeValue(this._timeFinishEvent);
+    this._favorite = mockEvent.favorite;
+    this._eventEditStartTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-start-time]`), {
+      defaultDate: new Date(this._timeStartEvent),
+      altInput: true,
+      altFormat: `Y/m/d H:i`,
+      dateFormat: `Y/m/d H:i`,
+      minDate: new Date(this._timeStartEvent),
+      enableTime: true,
+      minTime: new Date(this._timeStartEvent).toLocaleTimeString(),
+      maxTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
+    });
+    this._eventEditFinishTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-end-time]`), {
+      defaultDate: new Date(this._timeFinishEvent),
+      altInput: true,
+      altFormat: `Y/m/d H:i`,
+      dateFormat: `Y/m/d H:i`,
+      minDate: new Date(this._timeFinishEvent),
+      enableTime: true,
+      minTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
+      maxTime: `23:59`,
+    });
+    this._api = new Api(apiData);
+
+    this._api.getDestinations().then(this.generateDestinations.bind(this));
   }
 
   getEventGroup(nameGroup) {
@@ -43,25 +70,52 @@ export default class EventEdit extends Abstract {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
   
             <div class="event__available-offers">
-              ${[...offers].map(({id, title, price, isChecked}) => `
+              ${[...offers].slice(0, 2).map(({price, title}, index) => `
                <div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${id}-1" type="checkbox" name="event-offer-${id}" ${isChecked ? `checked` : ``}>
-                  <label class="event__offer-label" for="event-offer-${id}-1">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}">
+                  <label class="event__offer-label" for="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}">
                     <span class="event__offer-title">${title}</span>
                     &plus;
                     &euro;&nbsp;<span class="event__offer-price">${price}</span>
                   </label>
                 </div>`.trim()).join(``)}
             </div>
-        </section>` : ``;
+        </section>`.trim() : ``;
+  }
+
+  getOffers(offers) {
+    return `
+        <section class="event__section  event__section--offers">
+            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+  
+            <div class="event__available-offers">
+              ${[...offers].map(({name, price, title}, index) => `
+               <div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${name.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}">
+                  <label class="event__offer-label" for="event-offer-${name.toLowerCase().split(` `).join(`-`)}-${index}">
+                    <span class="event__offer-title">${title}</span>
+                    &plus;
+                    &euro;&nbsp;<span class="event__offer-price">${price}</span>
+                  </label>
+                </div>`.trim()).join(``)}
+            </div>
+        </section>`.trim();
   }
 
   getEventImg() {
-    return this._img.map((src) => `<img class="event__photo" src="${src}" alt="Event photo">`.trim()).join(``);
+    return this._images.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`.trim()).join(``);
   }
 
-  getDestinationList() {
-    return CITIES.map((cityItem) => `<option value="${cityItem}"></option>`).join(``);
+  insertDestinationList(destinations) {
+    this.getElement()
+      .querySelector(`#destination-list-1`)
+      .insertAdjacentHTML(`beforeend`, destinations);
+  }
+
+  generateDestinations(destinationsData) {
+    const destinationsMarkup = [...destinationsData].map(({name}) => `<option value="${name}"></option>`).join(``);
+
+    this.insertDestinationList(destinationsMarkup);
   }
 
   getFormattingTimeValue(time) {
@@ -70,7 +124,7 @@ export default class EventEdit extends Abstract {
 
   getTemplate() {
     return `
-<li class="trip-events__item">
+<li class="trip-events__item" data-event-id="${this._id}">
     <form class="event  event--edit" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
@@ -99,7 +153,6 @@ export default class EventEdit extends Abstract {
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
           <datalist id="destination-list-1">
-          ${this.getDestinationList()}
           </datalist>
         </div>
 
@@ -125,7 +178,7 @@ export default class EventEdit extends Abstract {
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
 
-        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked>
+        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._favorite ? `checked` : ``}>
         <label class="event__favorite-btn" for="event-favorite-1">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">

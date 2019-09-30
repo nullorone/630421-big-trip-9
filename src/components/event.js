@@ -19,7 +19,7 @@ export default class Event extends Abstract {
   }
 
   getEventOffers() {
-    return [...this._offers].map(({title: offerTitle, price: offerPrice}) => `
+    return [...this._offers].slice(0, 2).map(({title: offerTitle, price: offerPrice}) => `
              <li class="event__offer">
               <span class="event__offer-title">${offerTitle}</span>
               &plus;

@@ -1,10 +1,10 @@
 import Event from "../components/event";
 import EventEdit from "../components/eventEdit";
 import {renderComponent, createElement, unrenderComponent} from "../utils/util";
-import {getOffers, getRandomDescription, Mode} from "../data";
-import flatpickr from "flatpickr";
+import {apiData, getRandomDescription, Mode} from "../data";
 import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/airbnb.css";
+import Api from "../api";
 
 export default class PointController {
   constructor(container, mode, data, onDataChange, onChangeView) {
@@ -14,29 +14,16 @@ export default class PointController {
     this._eventEdit = new EventEdit(this._data);
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
-    this._eventEditStartTime = flatpickr(this._eventEdit.getElement().querySelector(`#event-start-time-1`), {
-      defaultDate: new Date(this._eventEdit._timeStartEvent),
-      altInput: true,
-      altFormat: `Y/m/d H:i`,
-      dateFormat: `Y/m/d H:i`,
-      minDate: new Date(this._eventEdit._timeStartEvent),
-      maxDate: new Date(this._eventEdit._timeFinishEvent),
-      enableTime: true,
-      minTime: new Date(this._eventEdit._timeStartEvent).toLocaleTimeString(),
-      maxTime: new Date(this._eventEdit._timeFinishEvent).toLocaleTimeString(),
-    });
-    this._eventEditFinishTime = flatpickr(this._eventEdit.getElement().querySelector(`#event-end-time-1`), {
-      defaultDate: new Date(this._eventEdit._timeFinishEvent),
-      altInput: true,
-      altFormat: `Y/m/d H:i`,
-      dateFormat: `Y/m/d H:i`,
-      minDate: new Date(this._eventEdit._timeFinishEvent),
-      enableTime: true,
-      minTime: new Date(this._eventEdit._timeFinishEvent).toLocaleTimeString(),
-      maxTime: `23:59`,
-    });
+    this._api = new Api(apiData);
+
+    this._apiOffers = null;
 
     this.init(mode);
+    this._api.getOffers().then(this._saveOffers.bind(this));
+  }
+
+  _saveOffers(offers) {
+    this._apiOffers = offers;
   }
 
   init(createMode) {
@@ -48,16 +35,16 @@ export default class PointController {
       renderPosition = `afterbegin`;
     }
 
-    flatpickr(this._eventEdit.getElement().querySelector(`#event-start-time-1`), {
-      defaultDate: new Date(this._eventEdit._timeStartEvent),
-      altInput: true,
-      altFormat: `Y/m/d H:i`,
-      dateFormat: `Y/m/d H:i`,
-      minDate: new Date(this._eventEdit._timeStartEvent),
-      enableTime: true,
-      minTime: new Date(this._eventEdit._timeStartEvent).toLocaleTimeString(),
-      maxTime: `23:59`,
-    });
+    // flatpickr(this._eventEdit.getElement().querySelector(`.event__input--time[name=event-start-time]`), {
+    //   defaultDate: new Date(this._eventEdit._timeStartEvent),
+    //   altInput: true,
+    //   altFormat: `Y/m/d H:i`,
+    //   dateFormat: `Y/m/d H:i`,
+    //   minDate: new Date(this._eventEdit._timeStartEvent),
+    //   enableTime: true,
+    //   minTime: new Date(this._eventEdit._timeStartEvent).toLocaleTimeString(),
+    //   maxTime: `23:59`,
+    // });
 
     const onEventEditEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
@@ -108,7 +95,10 @@ export default class PointController {
       let eventTypeOutputTitle = this._eventEdit.getElement().querySelector(`.event__type-output`);
       const offerContainer = this._eventEdit.getElement().querySelector(`.event__section--offers`);
       const detailsContainer = this._eventEdit.getElement().querySelector(`.event__details`);
-      const newOffers = createElement(this._eventEdit.getEventOffers(new Set(getOffers())));
+      const offersOfType = this._apiOffers.find(({type}) => valueTypeInput === type);
+      const newOffers = offersOfType.offers.length > 1 ?
+        createElement(this._eventEdit.getOffers(offersOfType.offers.slice(0, 2))) :
+        createElement(``);
 
       eventTypeIconSrc.src = `./img/icons/${valueTypeInput}.png`;
       eventTypeOutputTitle.innerText = typeTitle;
@@ -153,7 +143,12 @@ export default class PointController {
 
         const formData = new FormData(this._eventEdit.getElement().querySelector(`.event`));
 
-        const eventImages = Array.from(this._eventEdit.getElement().querySelectorAll(`.event__photo`)).map((image) => image.src);
+        const eventImages = [...this._eventEdit.getElement().querySelectorAll(`.event__photo`)].map((image) => {
+          return {
+            src: image.src,
+            description: image.alt,
+          };
+        });
 
         const eventOffers = new Set(Array.from(this._eventEdit.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
           id: offer.querySelector(`.event__offer-checkbox`).name.slice(12),
@@ -162,6 +157,14 @@ export default class PointController {
           isChecked: offer.querySelector(`.event__offer-checkbox`).checked,
         })));
 
+        const eventOffersToRaw = Array.from(this._eventEdit.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
+          title: offer.querySelector(`.event__offer-title`).innerText,
+          price: Number(offer.querySelector(`.event__offer-price`).innerText),
+          accepted: offer.querySelector(`.event__offer-checkbox`).checked,
+        }));
+
+        const eventFavorite = this._eventEdit.getElement().querySelector(`.event__favorite-checkbox`);
+
         const getTypeId = () => {
           const imgSrc = this._eventEdit.getElement().querySelector(`.event__type-icon`).src;
 
@@ -169,13 +172,14 @@ export default class PointController {
         };
 
         const entry = {
+          id: this._eventEdit.getElement().dataset.eventId,
           type: {
             id: getTypeId(),
             iconSrc: this._eventEdit.getElement().querySelector(`.event__type-icon`).src,
             title: this._eventEdit.getElement().querySelector(`.event__type-output`).innerText,
           },
           city: formData.get(`event-destination`),
-          img: eventImages,
+          images: eventImages,
           description: this._eventEdit.getElement().querySelector(`.event__destination-description`).innerText,
           time: {
             timeStartEvent: Date.parse(formData.get(`event-start-time`)),
@@ -183,6 +187,23 @@ export default class PointController {
           },
           price: Number(formData.get(`event-price`)),
           offers: eventOffers,
+          favorite: eventFavorite.checked,
+          get toRAW() {
+            return {
+              'id': this.id,
+              'type': this.type.id,
+              'destination': {
+                'description': this.description,
+                'name': this.city,
+                'pictures': this.images,
+              },
+              'date_from': new Date(this.time.timeStartEvent).toISOString(),
+              'date_to': new Date(this.time.timeFinishEvent).toISOString(),
+              'base_price': this.price,
+              'is_favorite': this.favorite,
+              'offers': eventOffersToRaw,
+            };
+          },
         };
 
         this._onDataChange(entry, (createMode === Mode.DEFAULT) ? this._data : null);

@@ -5,24 +5,26 @@ import Sort from "../components/sort";
 import Days from "../components/days";
 import Stats from "../components/stats";
 import PointController from "./point-controller";
-import {Mode} from "../data";
+import {apiData, Mode} from "../data";
+import Api from "../api";
+import ModelEvent from "../model/model-event";
 import StatsController from "./stats-controller";
 import FilterController from "./filter-controller";
 
 export default class TripController {
-  constructor(events) {
-    this._events = events.slice();
+  constructor() {
+    this._events = null;
     this._sort = new Sort();
     this._days = new Days();
     this._stats = new Stats();
-    this._info = new Info(this._events);
     this._filterController = new FilterController(this._onFilterChange.bind(this));
     this._tripEventsContainer = document.querySelector(`.trip-events`);
-    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+    this._uniqueEvents = null;
     this._subscriptions = [];
     this._onChangeView = this._onChangeView.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
     this._creatingEvent = null;
+    this._api = new Api(apiData);
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]
@@ -105,15 +107,18 @@ export default class TripController {
     });
   }
 
-  init() {
+  init(events) {
+    this._events = events;
+    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(events.slice()));
     const tripEvents = document.querySelector(`.trip-events > h2`);
     const tripInfo = document.querySelector(`.trip-info`);
     const noEventsMarkup = `<p class="trip-events__msg">Click New Event to create your first point</p>`;
+    const info = new Info(this._events.slice());
 
     if (this._events.length) {
       renderComponent(tripEvents, this._days.getElement());
       renderComponent(tripEvents, this._sort.getElement());
-      renderComponent(tripInfo, this._info.getElement(), `afterbegin`);
+      renderComponent(tripInfo, info.getElement(), `afterbegin`);
       renderComponent(this._tripEventsContainer, this._stats.getElement(), `afterend`);
       this._sort.getElement().addEventListener(`click`, this._onSortButtonClick.bind(this), true);
       this._filterController.init(this._uniqueEvents);
@@ -194,18 +199,30 @@ export default class TripController {
     if (newEvent === null && oldEvent === null) {
       this._creatingEvent = null;
     } else if (newEvent === null) {
-      this._events = [...this._events.slice(0, indexEvent), ...this._events.slice(indexEvent + 1)];
+      this._api.deleteEvent(oldEvent).then(() => this._api.getPoints()).then(ModelEvent.parseEvents).then((events) => {
+        this._events = events;
+        this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+        this.renderDays(this._uniqueEvents);
+        this._filterController.init(this._uniqueEvents);
+        this.getSumCostTrip(this._events);
+      });
     } else if (oldEvent === null) {
       this._creatingEvent = null;
       this._events = [newEvent, ...this._events].slice().sort(getSortEventList);
     } else {
-      this._events[indexEvent] = newEvent;
+      this._api.updateEvent(newEvent).then((event) => {
+        this._events[indexEvent] = event;
+        this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+        this.renderDays(this._uniqueEvents);
+        this._filterController.init(this._uniqueEvents);
+        this.getSumCostTrip(this._events);
+      });
     }
 
-    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-    this.renderDays(this._uniqueEvents);
-    this._filterController.init(this._uniqueEvents);
-    this.getSumCostTrip(this._events);
+    // this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+    // this.renderDays(this._uniqueEvents);
+    // this._filterController.init(this._uniqueEvents);
+    // this.getSumCostTrip(this._events);
   }
 
   _renderEvents(eventsContainer, eventsDay) {
