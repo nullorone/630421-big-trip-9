@@ -7,6 +7,7 @@ import flatpickr from "flatpickr";
 export default class EventEdit extends Abstract {
   constructor(mockEvent) {
     super();
+    console.log(mockEvent)
     this._id = mockEvent.id;
     this._iconSrc = mockEvent.type.iconSrc;
     this._title = mockEvent.type.title;
@@ -70,9 +71,9 @@ export default class EventEdit extends Abstract {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
   
             <div class="event__available-offers">
-              ${[...offers].slice(0, 2).map(({price, title}, index) => `
+              ${[...offers].slice(0, 2).map(({price, title, accepted}, index) => `
                <div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}" ${accepted ? `checked` : ``}>
                   <label class="event__offer-label" for="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}">
                     <span class="event__offer-title">${title}</span>
                     &plus;
@@ -120,6 +121,42 @@ export default class EventEdit extends Abstract {
 
   getFormattingTimeValue(time) {
     return `${new Date(time).toLocaleString().slice(0, 10).split(`.`).join(`/`)} ${new Date(time).toTimeString().substr(0, 5)}`;
+  }
+
+  setStyleErrorEventEdit(state) {
+    if (state) {
+      this.getElement().classList.add(`red-border`);
+      this.getElement().classList.add(`shake`);
+    } else {
+      this.getElement().classList.remove(`red-border`);
+      this.getElement().classList.remove(`shake`);
+    }
+  }
+
+  changeTextOnButton(text) {
+    switch (true) {
+      case (text === `Saving`):
+        this.getElement().querySelector(`.event__save-btn`).innerText = `${text}...`;
+        break;
+      case (text === `Save`):
+        this.getElement().querySelector(`.event__save-btn`).innerText = `${text}`;
+        break;
+      case (text === `Deleting`):
+        this.getElement().querySelector(`.event__reset-btn`).innerText = `${text}...`;
+        break;
+      case (text === `Delete`):
+        this.getElement().querySelector(`.event__reset-btn`).innerText = `${text}`;
+        break;
+    }
+  }
+
+  changeFormUi(stateDisabled) {
+    Array.from(this.getElement().querySelectorAll(`input:not(.flatpickr-input)`)).map((input) => {
+      input.disabled = stateDisabled;
+    });
+    Array.from(this.getElement().querySelectorAll(`button`)).map((button) => {
+      button.disabled = stateDisabled;
+    });
   }
 
   getTemplate() {
@@ -192,7 +229,7 @@ export default class EventEdit extends Abstract {
       </header>
 
       <section class="event__details">
-      
+
       ${this.getEventOffers(this._offers)}
 
         <section class="event__section  event__section--destination">

@@ -49,7 +49,7 @@ export default class PointController {
     const onEventEditEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
         if (createMode === Mode.DEFAULT) {
-          if (this._container.getElement().contains(this._eventEdit.getElement())) {
+          if (this._container.contains(this._eventEdit.getElement())) {
             this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
           }
         } else if (createMode === Mode.ADDING) {
@@ -62,6 +62,7 @@ export default class PointController {
             });
         }
 
+        this._eventEdit.setStyleErrorEventEdit(false);
         document.removeEventListener(`keydown`, onEventEditEscKeyDown);
       }
     };
@@ -77,6 +78,7 @@ export default class PointController {
     const onEventEditRollupButtonClick = (evt) => {
       evt.preventDefault();
       this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
+      this._eventEdit.setStyleErrorEventEdit(false);
       document.removeEventListener(`keydown`, onEventEditEscKeyDown);
       this._eventEdit.getElement().removeEventListener(`click`, onEventEditRollupButtonClick);
     };
@@ -120,6 +122,100 @@ export default class PointController {
       descriptionContainer.innerHTML = getRandomDescription();
     };
 
+    const onFormInput = (evt) => {
+      if (evt.target.tagName !== `INPUT`) {
+        return;
+      }
+
+      if (this._eventEdit.getElement().className.includes(`shake`)) {
+        this._eventEdit.setStyleErrorEventEdit(false);
+      } else {
+        this._eventEdit.getElement()
+          .querySelector(`form`)
+          .removeEventListener(`input`, onFormInput);
+      }
+    };
+
+    const onSubmit = (evt) => {
+      evt.preventDefault();
+
+      this._eventEdit.changeFormUi(true);
+      this._eventEdit.changeTextOnButton(`Saving`);
+      this._eventEdit.getElement()
+        .querySelector(`form`)
+        .addEventListener(`input`, onFormInput);
+
+      const formData = new FormData(this._eventEdit.getElement().querySelector(`.event`));
+
+      const eventImages = [...this._eventEdit.getElement().querySelectorAll(`.event__photo`)].map((image) => {
+        return {
+          src: image.src,
+          description: image.alt,
+        };
+      });
+
+      const eventOffers = new Set(Array.from(this._eventEdit.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
+        id: offer.querySelector(`.event__offer-checkbox`).name.slice(12),
+        title: offer.querySelector(`.event__offer-title`).innerText,
+        price: Number(offer.querySelector(`.event__offer-price`).innerText),
+        isChecked: offer.querySelector(`.event__offer-checkbox`).checked,
+      })));
+
+      const eventOffersToRaw = Array.from(this._eventEdit.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
+        title: offer.querySelector(`.event__offer-title`).innerText,
+        price: Number(offer.querySelector(`.event__offer-price`).innerText),
+        accepted: offer.querySelector(`.event__offer-checkbox`).checked,
+      }));
+
+      const eventFavorite = this._eventEdit.getElement().querySelector(`.event__favorite-checkbox`);
+
+      const getTypeId = () => {
+        const imgSrc = this._eventEdit.getElement().querySelector(`.event__type-icon`).src;
+
+        return imgSrc.substring(imgSrc.lastIndexOf(`/`) + 1, imgSrc.length - 4);
+      };
+      const eventCity = this._eventEdit.getElement().querySelector(`.event__input--destination`).value;
+      const eventPrice = this._eventEdit.getElement().querySelector(`.event__input--price`).value;
+
+      const entry = {
+        id: this._eventEdit.getElement().dataset.eventId,
+        type: {
+          id: getTypeId(),
+          iconSrc: this._eventEdit.getElement().querySelector(`.event__type-icon`).src,
+          title: this._eventEdit.getElement().querySelector(`.event__type-output`).innerText,
+        },
+        city: eventCity,
+        images: eventImages,
+        description: this._eventEdit.getElement().querySelector(`.event__destination-description`).innerText,
+        time: {
+          timeStartEvent: Date.parse(formData.get(`event-start-time`)),
+          timeFinishEvent: Date.parse(formData.get(`event-end-time`)),
+        },
+        price: Number(eventPrice),
+        offers: eventOffers,
+        favorite: eventFavorite.checked,
+        get toRAW() {
+          return {
+            'type': this.type.id,
+            'destination': {
+              'description': this.description,
+              'name': this.city,
+              'pictures': this.images,
+            },
+            'date_from': new Date(this.time.timeStartEvent).toISOString(),
+            'date_to': new Date(this.time.timeFinishEvent).toISOString(),
+            'base_price': this.price,
+            'is_favorite': this.favorite,
+            'offers': eventOffersToRaw,
+          };
+        },
+      };
+
+      this._onDataChange(entry, (createMode === Mode.DEFAULT) ? this._data : null, this._container, this._event, this._eventEdit);
+
+      // this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
+    };
+
     this._event.getElement()
       .querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, onEventRollupButtonClick);
@@ -138,84 +234,21 @@ export default class PointController {
 
     this._eventEdit.getElement()
       .querySelector(`form`)
-      .addEventListener(`submit`, (evt) => {
-        evt.preventDefault();
+      .addEventListener(`input`, onFormInput);
 
-        const formData = new FormData(this._eventEdit.getElement().querySelector(`.event`));
+    this._eventEdit.getElement()
+      .querySelector(`form`)
+      .addEventListener(`submit`, onSubmit);
 
-        const eventImages = [...this._eventEdit.getElement().querySelectorAll(`.event__photo`)].map((image) => {
-          return {
-            src: image.src,
-            description: image.alt,
-          };
-        });
-
-        const eventOffers = new Set(Array.from(this._eventEdit.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
-          id: offer.querySelector(`.event__offer-checkbox`).name.slice(12),
-          title: offer.querySelector(`.event__offer-title`).innerText,
-          price: offer.querySelector(`.event__offer-price`).innerText,
-          isChecked: offer.querySelector(`.event__offer-checkbox`).checked,
-        })));
-
-        const eventOffersToRaw = Array.from(this._eventEdit.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
-          title: offer.querySelector(`.event__offer-title`).innerText,
-          price: Number(offer.querySelector(`.event__offer-price`).innerText),
-          accepted: offer.querySelector(`.event__offer-checkbox`).checked,
-        }));
-
-        const eventFavorite = this._eventEdit.getElement().querySelector(`.event__favorite-checkbox`);
-
-        const getTypeId = () => {
-          const imgSrc = this._eventEdit.getElement().querySelector(`.event__type-icon`).src;
-
-          return imgSrc.substring(imgSrc.lastIndexOf(`/`) + 1, imgSrc.length - 4);
-        };
-
-        const entry = {
-          id: this._eventEdit.getElement().dataset.eventId,
-          type: {
-            id: getTypeId(),
-            iconSrc: this._eventEdit.getElement().querySelector(`.event__type-icon`).src,
-            title: this._eventEdit.getElement().querySelector(`.event__type-output`).innerText,
-          },
-          city: formData.get(`event-destination`),
-          images: eventImages,
-          description: this._eventEdit.getElement().querySelector(`.event__destination-description`).innerText,
-          time: {
-            timeStartEvent: Date.parse(formData.get(`event-start-time`)),
-            timeFinishEvent: Date.parse(formData.get(`event-end-time`)),
-          },
-          price: Number(formData.get(`event-price`)),
-          offers: eventOffers,
-          favorite: eventFavorite.checked,
-          get toRAW() {
-            return {
-              'id': this.id,
-              'type': this.type.id,
-              'destination': {
-                'description': this.description,
-                'name': this.city,
-                'pictures': this.images,
-              },
-              'date_from': new Date(this.time.timeStartEvent).toISOString(),
-              'date_to': new Date(this.time.timeFinishEvent).toISOString(),
-              'base_price': this.price,
-              'is_favorite': this.favorite,
-              'offers': eventOffersToRaw,
-            };
-          },
-        };
-
-        this._onDataChange(entry, (createMode === Mode.DEFAULT) ? this._data : null);
-
-        this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
-      });
-
+    this._eventEdit.getElement()
+      .querySelector(`#event-favorite-1`)
+      .addEventListener(`change`, onSubmit);
 
     this._eventEdit.getElement()
       .querySelector(`.event__reset-btn`)
       .addEventListener(`click`, () => {
-        this._onDataChange(null, this._data);
+        this._eventEdit.changeTextOnButton(`Deleting`);
+        this._onDataChange(null, this._data, this._container, this._event, this._eventEdit);
       });
 
     renderComponent(this._container, currentView.getElement(), renderPosition);

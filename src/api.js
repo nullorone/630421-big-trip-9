@@ -5,8 +5,6 @@ const Method = {
   GET: `GET`,
   DELETE: `DELETE`,
   PUT: `PUT`,
-  PATCH: `PATCH`,
-  HEAD: `HEAD`,
 };
 
 const checkStatus = (response) => {
@@ -31,7 +29,13 @@ export default class Api {
     this._authorization = authorization;
   }
 
-  createEvent({event}) {
+  createEvent(event) {
+    return this._load({
+      url: `points`,
+      method: Method.POST,
+      body: JSON.stringify(event.toRAW)})
+      .then(toJSON)
+      .then(ModelEvent.parseEvent);
   }
 
   getPoints() {

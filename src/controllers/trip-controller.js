@@ -77,7 +77,7 @@ export default class TripController {
         title: ``,
       },
       city: ``,
-      img: [],
+      images: [],
       description: ``,
       time: {
         timeStartEvent: new Date(),
@@ -194,29 +194,59 @@ export default class TripController {
     this._subscriptions.forEach((subscription) => subscription());
   }
 
-  _onDataChange(newEvent, oldEvent) {
+  _onDataChange(newEvent, oldEvent, ...arg) {
     const indexEvent = this._events.findIndex((event) => event === oldEvent);
+    const currentContainer = arg[0];
+    const currentEvent = arg[1];
+    const currentEventEdit = arg[2];
     if (newEvent === null && oldEvent === null) {
       this._creatingEvent = null;
     } else if (newEvent === null) {
-      this._api.deleteEvent(oldEvent).then(() => this._api.getPoints()).then(ModelEvent.parseEvents).then((events) => {
-        this._events = events;
-        this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-        this.renderDays(this._uniqueEvents);
-        this._filterController.init(this._uniqueEvents);
-        this.getSumCostTrip(this._events);
-      });
+      this._api.deleteEvent(oldEvent)
+        .then(() => this._api.getPoints())
+        .then(ModelEvent.parseEvents)
+        .then((events) => {
+          if (currentEventEdit.getElement().className.includes(`shake`)) {
+            currentEventEdit.setStyleErrorEventEdit(false);
+          }
+          this._events = events;
+          this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+          this.renderDays(this._uniqueEvents);
+          this._filterController.init(this._uniqueEvents);
+          this.getSumCostTrip(this._events);
+        })
+        .catch(() => {
+          currentEventEdit.changeFormUi(false);
+          currentEventEdit.changeTextOnButton(`Delete`);
+          currentEventEdit.setStyleErrorEventEdit(true);
+        });
     } else if (oldEvent === null) {
       this._creatingEvent = null;
-      this._events = [newEvent, ...this._events].slice().sort(getSortEventList);
-    } else {
-      this._api.updateEvent(newEvent).then((event) => {
-        this._events[indexEvent] = event;
+      this._api.createEvent(newEvent).then((event) => {
+        this._events = [event, ...this._events].slice().sort(getSortEventList);
         this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
         this.renderDays(this._uniqueEvents);
         this._filterController.init(this._uniqueEvents);
         this.getSumCostTrip(this._events);
+        currentContainer.replaceChild(currentEvent.getElement(), currentEventEdit.getElement());
       });
+    } else {
+      this._api.updateEvent(newEvent)
+        .then((event) => {
+          if (currentEventEdit.getElement().className.includes(`shake`)) {
+            currentEventEdit.setStyleErrorEventEdit(false);
+          }
+          this._events[indexEvent] = event;
+          this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+          this.renderDays(this._uniqueEvents);
+          this._filterController.init(this._uniqueEvents);
+          this.getSumCostTrip(this._events);
+          currentContainer.replaceChild(currentEvent.getElement(), currentEventEdit.getElement());
+        }).catch(() => {
+          currentEventEdit.changeFormUi(false);
+          currentEventEdit.changeTextOnButton(`Save`);
+          currentEventEdit.setStyleErrorEventEdit(true);
+        });
     }
 
     // this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
