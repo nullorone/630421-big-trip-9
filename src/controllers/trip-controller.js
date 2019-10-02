@@ -66,6 +66,7 @@ export default class TripController {
   }
 
   createEvent() {
+    console.log(this._creatingEvent)
     if (this._creatingEvent) {
       return;
     }
@@ -209,6 +210,7 @@ export default class TripController {
           if (currentEventEdit.getElement().className.includes(`shake`)) {
             currentEventEdit.setStyleErrorEventEdit(false);
           }
+          this._creatingEvent = null;
           this._events = events;
           this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
           this.renderDays(this._uniqueEvents);
@@ -222,14 +224,23 @@ export default class TripController {
         });
     } else if (oldEvent === null) {
       this._creatingEvent = null;
-      this._api.createEvent(newEvent).then((event) => {
-        this._events = [event, ...this._events].slice().sort(getSortEventList);
-        this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-        this.renderDays(this._uniqueEvents);
-        this._filterController.init(this._uniqueEvents);
-        this.getSumCostTrip(this._events);
-        currentContainer.replaceChild(currentEvent.getElement(), currentEventEdit.getElement());
-      });
+      this._api.createEvent(newEvent)
+        .then((event) => {
+          if (currentEventEdit.getElement().className.includes(`shake`)) {
+            currentEventEdit.setStyleErrorEventEdit(false);
+          }
+          this._events = [event, ...this._events].slice().sort(getSortEventList);
+          this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+          this.renderDays(this._uniqueEvents);
+          this._filterController.init(this._uniqueEvents);
+          this.getSumCostTrip(this._events);
+          currentContainer.replaceChild(currentEvent.getElement(), currentEventEdit.getElement());
+        })
+        .catch(() => {
+          currentEventEdit.changeFormUi(false);
+          currentEventEdit.changeTextOnButton(`Save`);
+          currentEventEdit.setStyleErrorEventEdit(true);
+        });
     } else {
       this._api.updateEvent(newEvent)
         .then((event) => {

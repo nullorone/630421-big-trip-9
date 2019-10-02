@@ -33,7 +33,9 @@ export default class Api {
     return this._load({
       url: `points`,
       method: Method.POST,
-      body: JSON.stringify(event.toRAW)})
+      body: JSON.stringify(event.toRAW),
+      headers: new Headers({'Content-Type': `application/json`})
+    })
       .then(toJSON)
       .then(ModelEvent.parseEvent);
   }

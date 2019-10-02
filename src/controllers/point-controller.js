@@ -53,13 +53,10 @@ export default class PointController {
             this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
           }
         } else if (createMode === Mode.ADDING) {
-          this._container.removeChild(currentView.getElement());
-
-          currentView.getElement()
-            .querySelector(`.event__reset-btn`)
-            .addEventListener(`click`, () => {
-              this._onDataChange(null, null);
-            });
+          if (this._container.contains(this._eventEdit.getElement())) {
+            this._container.removeChild(currentView.getElement());
+          }
+          this._onDataChange(null, null);
         }
 
         this._eventEdit.setStyleErrorEventEdit(false);
@@ -216,6 +213,8 @@ export default class PointController {
       // this._container.replaceChild(this._event.getElement(), this._eventEdit.getElement());
     };
 
+    document.addEventListener(`keydown`, onEventEditEscKeyDown);
+
     this._event.getElement()
       .querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, onEventRollupButtonClick);
@@ -247,8 +246,13 @@ export default class PointController {
     this._eventEdit.getElement()
       .querySelector(`.event__reset-btn`)
       .addEventListener(`click`, () => {
-        this._eventEdit.changeTextOnButton(`Deleting`);
-        this._onDataChange(null, this._data, this._container, this._event, this._eventEdit);
+        if (createMode === Mode.ADDING) {
+          this._container.removeChild(currentView.getElement());
+          this._onDataChange(null, null);
+        } else {
+          this._eventEdit.changeTextOnButton(`Deleting`);
+          this._onDataChange(null, this._data, this._container, this._event, this._eventEdit);
+        }
       });
 
     renderComponent(this._container, currentView.getElement(), renderPosition);
