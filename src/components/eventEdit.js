@@ -71,7 +71,7 @@ export default class EventEdit extends Abstract {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
   
             <div class="event__available-offers">
-              ${[...offers].slice(0, 2).map(({price, title, accepted}, index) => `
+              ${[...offers].slice(0, 3).map(({price, title, accepted}, index) => `
                <div class="event__offer-selector">
                   <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}" ${accepted ? `checked` : ``}>
                   <label class="event__offer-label" for="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}">
