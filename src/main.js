@@ -40,7 +40,7 @@ new Api(apiData)
   .getPoints()
   .then(ModelEvent.parseEvents)
   .then((events) => {
-    unrenderComponent(tripEventsContainer.querySelector(`.trip-events__msg`));
+    unrenderComponent(document.querySelector(`.trip-events__msg`));
     tripController.init(getSortEvents(events));
   });
 
