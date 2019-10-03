@@ -66,7 +66,7 @@ export default class TripController {
   }
 
   createEvent() {
-    console.log(this._creatingEvent)
+    this._onChangeView();
     if (this._creatingEvent) {
       return;
     }
