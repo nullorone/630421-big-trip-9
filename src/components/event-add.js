@@ -4,7 +4,7 @@ import Abstract from "./abstract";
 import Api from "../api";
 import flatpickr from "flatpickr";
 
-export default class EventEdit extends Abstract {
+export default class EventAdd extends Abstract {
   constructor(mockEvent) {
     super();
     this._id = mockEvent.id;
@@ -19,7 +19,6 @@ export default class EventEdit extends Abstract {
     this._description = mockEvent.description;
     this._timeStartEventValueFormat = this.getFormattingTimeValue(this._timeStartEvent);
     this._timeFinishEventValueFormat = this.getFormattingTimeValue(this._timeFinishEvent);
-    this._favorite = mockEvent.favorite;
     this._eventEditStartTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-start-time]`), {
       defaultDate: new Date(this._timeStartEvent),
       altInput: true,
@@ -50,6 +49,10 @@ export default class EventEdit extends Abstract {
 
     this._descriptionEvent = this.insertDescription.bind(this);
     this._imagesEvent = this.insertImage.bind(this);
+  }
+
+  get descriptions() {
+    return this._descriptionData;
   }
 
   transformDestinations(destinations) {
@@ -126,6 +129,7 @@ export default class EventEdit extends Abstract {
     return images.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`.trim()).join(``);
   }
 
+
   insertImage(city) {
     const images = this._descriptionData[city].pictures;
     return `<div class="event__photos-container">
@@ -175,12 +179,6 @@ export default class EventEdit extends Abstract {
       case (text === `Save`):
         this.getElement().querySelector(`.event__save-btn`).innerText = `${text}`;
         break;
-      case (text === `Deleting`):
-        this.getElement().querySelector(`.event__reset-btn`).innerText = `${text}...`;
-        break;
-      case (text === `Delete`):
-        this.getElement().querySelector(`.event__reset-btn`).innerText = `${text}`;
-        break;
     }
   }
 
@@ -196,16 +194,16 @@ export default class EventEdit extends Abstract {
   getTemplate() {
     return `
 <li class="trip-events__item" data-event-id="${this._id}">
-    <form class="event  event--edit" action="#" method="post">
-      <header class="event__header">
-        <div class="event__type-wrapper">
-          <label class="event__type  event__type-btn" for="event-type-toggle-1">
-            <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="${this._iconSrc}" alt="Event type icon">
-          </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+          <form class="trip-events__item  event  event--edit" action="#" method="post">
+            <header class="event__header">
+              <div class="event__type-wrapper">
+                <label class="event__type  event__type-btn" for="event-type-toggle-1">
+                  <span class="visually-hidden">Choose event type</span>
+                  <img class="event__type-icon" width="17" height="17" src="img/icons/flight.png" alt="Event type icon">
+                </label>
+                <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
-          <div class="event__type-list">
+                <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Transfer</legend>
               ${this.eventTransferGroup}
@@ -217,7 +215,7 @@ export default class EventEdit extends Abstract {
             </fieldset>
           </div>
         </div>
-
+        
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
             ${this._title}
@@ -227,57 +225,41 @@ export default class EventEdit extends Abstract {
           </datalist>
         </div>
 
-        <div class="event__field-group  event__field-group--time">
-          <label class="visually-hidden" for="event-start-time-1">
-            From
-          </label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${this._timeStartEventValueFormat}"
-          <label class="visually-hidden" for="event-end-time-1">
-            To
-          </label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${this._timeFinishEventValueFormat}">
-        </div>
+              <div class="event__field-group  event__field-group--time">
+                <label class="visually-hidden" for="event-start-time-1">
+                  From
+                </label>
+                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${this._timeStartEventValueFormat}">
+                &mdash;
+                <label class="visually-hidden" for="event-end-time-1">
+                  To
+                </label>
+                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${this._timeFinishEventValueFormat}">
+              </div>
 
-        <div class="event__field-group  event__field-group--price">
-          <label class="event__label" for="event-price-1">
-            <span class="visually-hidden">Price</span>
-            &euro;
-          </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._price}">
-        </div>
+              <div class="event__field-group  event__field-group--price">
+                <label class="event__label" for="event-price-1">
+                  <span class="visually-hidden">Price</span>
+                  &euro;
+                </label>
+                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._price}">
+              </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
-
-        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._favorite ? `checked` : ``}>
-        <label class="event__favorite-btn" for="event-favorite-1">
-          <span class="visually-hidden">Add to favorite</span>
-          <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
-            <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
-          </svg>
-        </label>
-
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
-      </header>
-
+              <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+              <button class="event__reset-btn" type="reset">Cancel</button>
+            </header>
+            
       <section class="event__details">
 
       ${this.getEventOffers(this._offers)}
 
         <section class="event__section  event__section--destination">
-          ${this._descriptionEvent ? this._descriptionEvent : `<h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${this._description}</p>`.trim()}
-
-          ${this._imagesEvent ? this._imagesEvent : `<div class="event__photos-container">
-            <div class="event__photos-tape">
-            ${this.getEventImg(this._images)}
-            </div>
-          </div>`.trim()}
+        ${this._descriptionEvent || ``}
+        ${this._imagesEvent || ``}
         </section>
       </section>
-    </form>
+            
+          </form>
   </li>`.trim();
   }
 }

@@ -22,6 +22,7 @@ const getSortEvents = (events) => {
 
 const onAddEventButtonClick = (evt) => {
   evt.preventDefault();
+  evt.target.disabled = true;
   tripController.createEvent();
 };
 

@@ -88,8 +88,8 @@ export default class TripController {
       offers: new Set(),
     };
 
-    this._creatingEvent = new PointController(this._days.getElement(), Mode.ADDING, defaultEvent, this._onDataChange, this._onChangeView);
-
+    this._creatingEvent = new PointController(this._days.getElement(), defaultEvent, this._onDataChange, this._onChangeView);
+    this._creatingEvent.init(Mode.ADDING);
   }
 
   renderDays(uniqueEvents) {
@@ -195,20 +195,18 @@ export default class TripController {
     this._subscriptions.forEach((subscription) => subscription());
   }
 
-  _onDataChange(newEvent, oldEvent, ...arg) {
+  _onDataChange({newEvent, oldEvent, container, currentEvent, currentView, mode}) {
     const indexEvent = this._events.findIndex((event) => event === oldEvent);
-    const currentContainer = arg[0];
-    const currentEvent = arg[1];
-    const currentEventEdit = arg[2];
     if (newEvent === null && oldEvent === null) {
       this._creatingEvent = null;
+      document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     } else if (newEvent === null) {
       this._api.deleteEvent(oldEvent)
         .then(() => this._api.getPoints())
         .then(ModelEvent.parseEvents)
         .then((events) => {
-          if (currentEventEdit.getElement().className.includes(`shake`)) {
-            currentEventEdit.setStyleErrorEventEdit(false);
+          if (currentView.getElement().className.includes(`shake`)) {
+            currentView.setStyleErrorEventEdit(false);
           }
           this._creatingEvent = null;
           this._events = events;
@@ -218,57 +216,53 @@ export default class TripController {
           this.getSumCostTrip(this._events);
         })
         .catch(() => {
-          currentEventEdit.changeFormUi(false);
-          currentEventEdit.changeTextOnButton(`Delete`);
-          currentEventEdit.setStyleErrorEventEdit(true);
+          currentView.changeFormUi(false);
+          currentView.changeTextOnButton(`Delete`);
+          currentView.setStyleErrorEventEdit(true);
         });
-    } else if (oldEvent === null) {
+    } else if (oldEvent === null && mode === Mode.ADDING) {
       this._creatingEvent = null;
       this._api.createEvent(newEvent)
         .then((event) => {
-          if (currentEventEdit.getElement().className.includes(`shake`)) {
-            currentEventEdit.setStyleErrorEventEdit(false);
+          if (currentView.getElement().className.includes(`shake`)) {
+            currentView.setStyleErrorEventEdit(false);
           }
           this._events = [event, ...this._events].slice().sort(getSortEventList);
           this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
           this.renderDays(this._uniqueEvents);
           this._filterController.init(this._uniqueEvents);
           this.getSumCostTrip(this._events);
-          currentContainer.replaceChild(currentEvent.getElement(), currentEventEdit.getElement());
+          container.replaceChild(currentEvent.getElement(), currentView.getElement());
         })
         .catch(() => {
-          currentEventEdit.changeFormUi(false);
-          currentEventEdit.changeTextOnButton(`Save`);
-          currentEventEdit.setStyleErrorEventEdit(true);
+          currentView.changeFormUi(false);
+          currentView.changeTextOnButton(`Save`);
+          currentView.setStyleErrorEventEdit(true);
         });
-    } else {
+    } else if (mode === Mode.EDIT) {
       this._api.updateEvent(newEvent)
         .then((event) => {
-          if (currentEventEdit.getElement().className.includes(`shake`)) {
-            currentEventEdit.setStyleErrorEventEdit(false);
+          if (currentView.getElement().className.includes(`shake`)) {
+            currentView.setStyleErrorEventEdit(false);
           }
           this._events[indexEvent] = event;
           this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
           this.renderDays(this._uniqueEvents);
           this._filterController.init(this._uniqueEvents);
           this.getSumCostTrip(this._events);
-          currentContainer.replaceChild(currentEvent.getElement(), currentEventEdit.getElement());
+          container.replaceChild(currentEvent.getElement(), currentView.getElement());
         }).catch(() => {
-          currentEventEdit.changeFormUi(false);
-          currentEventEdit.changeTextOnButton(`Save`);
-          currentEventEdit.setStyleErrorEventEdit(true);
+          currentView.changeFormUi(false);
+          currentView.changeTextOnButton(`Save`);
+          currentView.setStyleErrorEventEdit(true);
         });
     }
-
-    // this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-    // this.renderDays(this._uniqueEvents);
-    // this._filterController.init(this._uniqueEvents);
-    // this.getSumCostTrip(this._events);
   }
 
   _renderEvents(eventsContainer, eventsDay) {
     eventsDay.forEach((event) => {
-      const pointController = new PointController(eventsContainer, Mode.DEFAULT, event, this._onDataChange, this._onChangeView);
+      const pointController = new PointController(eventsContainer, event, this._onDataChange, this._onChangeView);
+      pointController.init(Mode.DEFAULT);
       this._subscriptions.push(pointController.setDefaultView.bind(pointController));
 
       return pointController;

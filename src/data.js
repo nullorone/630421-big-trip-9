@@ -20,6 +20,7 @@ const TIME_RANGE = 10000000;
 const Mode = {
   ADDING: `adding`,
   DEFAULT: `default`,
+  EDIT: `edit`,
 };
 
 const CITIES = [`Auckland`, `Hamilton`, `Wellington`, `Christchurch`, `Tauranga`];
