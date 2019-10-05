@@ -10,6 +10,7 @@ import Api from "../api";
 import ModelEvent from "../model/model-event";
 import StatsController from "./stats-controller";
 import FilterController from "./filter-controller";
+import moment from "moment";
 
 export default class TripController {
   constructor() {
@@ -187,7 +188,7 @@ export default class TripController {
 
     switch (input.dataset.type) {
       case (`time`):
-        const getDurationEvent = (event) => Math.abs(event.time.timeFinishEvent - event.time.timeStartEvent);
+        const getDurationEvent = (event) => Math.abs(moment(event.time.timeFinishEvent) - moment(event.time.timeStartEvent));
         const sortedByDurationEvents = this._events.slice().sort((a, b) => getDurationEvent(b) - getDurationEvent(a));
         renderComponent(this._days.getElement(), day, `beforeend`);
         this._renderEvents(day.querySelector(`.trip-events__list`), sortedByDurationEvents);
