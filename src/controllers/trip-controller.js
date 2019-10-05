@@ -217,60 +217,59 @@ export default class TripController {
         .then(() => this._api.getPoints())
         .then(ModelEvent.parseEvents)
         .then((events) => {
-          if (currentView.getElement().className.includes(`shake`)) {
-            currentView.setStyleErrorEventEdit(false);
-          }
           this._creatingEvent = null;
           this._events = events;
-          this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-          this.renderDays(this._uniqueEvents);
-          this._filterController.init(this._uniqueEvents);
-          this.getSumCostTrip(this._events);
+          this._runSuccessMethods(currentView);
         })
         .catch(() => {
-          currentView.changeFormUi(false);
-          currentView.changeTextOnButton(`Delete`);
-          currentView.setStyleErrorEventEdit(true);
+          this._runErrorMethods(currentView, `Delete`);
         });
     } else if (mode === Mode.ADDING) {
       this._creatingEvent = null;
       this._api.createEvent(newEvent)
         .then((event) => {
-          if (currentView.getElement().className.includes(`shake`)) {
-            currentView.setStyleErrorEventEdit(false);
-          }
           this._events = [event, ...this._events].slice().sort(getSortEventList);
-          this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-          this.renderDays(this._uniqueEvents);
-          this._filterController.init(this._uniqueEvents);
-          this.getSumCostTrip(this._events);
+          this._runSuccessMethods(currentView);
           container.replaceChild(currentEvent.getElement(), currentView.getElement());
-
           document.querySelector(`.trip-main__event-add-btn`).disabled = false;
         })
         .catch(() => {
-          currentView.changeFormUi(false);
-          currentView.changeTextOnButton(`Save`);
-          currentView.setStyleErrorEventEdit(true);
+          this._runErrorMethods(currentView, `Save`);
         });
     } else if (mode === Mode.EDIT) {
       this._api.updateEvent(newEvent)
         .then((event) => {
-          if (currentView.getElement().className.includes(`shake`)) {
-            currentView.setStyleErrorEventEdit(false);
-          }
           this._events[indexEvent] = event;
-          this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-          this.renderDays(this._uniqueEvents);
-          this._filterController.init(this._uniqueEvents);
-          this.getSumCostTrip(this._events);
+          this._runSuccessMethods(currentView);
           container.replaceChild(currentEvent.getElement(), currentView.getElement());
         }).catch(() => {
-          currentView.changeFormUi(false);
-          currentView.changeTextOnButton(`Save`);
-          currentView.setStyleErrorEventEdit(true);
+          this._runErrorMethods(currentView, `Save`);
         });
     }
+  }
+
+  _runErrorMethods(view, buttonText) {
+    view.changeFormUi(false);
+    view.changeTextOnButton(buttonText);
+    view.setStyleErrorEventEdit(true);
+  }
+
+  _runSuccessMethods(view) {
+    this._checkShakeState(view);
+    this._rerenderDays();
+  }
+
+  _checkShakeState(view) {
+    if (view.getElement().className.includes(`shake`)) {
+      view.setStyleErrorEventEdit(false);
+    }
+  }
+
+  _rerenderDays() {
+    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+    this.renderDays(this._uniqueEvents);
+    this._filterController.init(this._uniqueEvents);
+    this.getSumCostTrip(this._events);
   }
 
   _renderEvents(eventsContainer, eventsDay) {
