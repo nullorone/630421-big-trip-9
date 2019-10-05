@@ -3,6 +3,8 @@ import Abstract from "./abstract";
 import {getDurationTime, transformTypeEvent} from "../utils/util";
 import moment from "moment";
 
+const OFFERS_LIMIT = 3;
+
 export default class Event extends Abstract {
   constructor(mockEvent) {
     super();
@@ -19,7 +21,7 @@ export default class Event extends Abstract {
   }
 
   getEventOffers() {
-    return [...this._offers].slice(0, 3).map(({title: offerTitle, price: offerPrice, accepted}) => {
+    return [...this._offers].slice(0, OFFERS_LIMIT).map(({title: offerTitle, price: offerPrice, accepted}) => {
       return accepted ? `<li class="event__offer">
               <span class="event__offer-title">${offerTitle}</span>
               &plus;
@@ -39,9 +41,9 @@ export default class Event extends Abstract {
 
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time" datetime="${moment(this._timeStartEvent).format().slice(0, -9)}">${moment(this._timeStartEvent).format(`H:mm`)}</time>
+              <time class="event__start-time" datetime="${moment(this._timeStartEvent).format(`YYYY-MM-DDTHH:mm`)}">${moment(this._timeStartEvent).format(`H:mm`)}</time>
               &mdash;
-              <time class="event__end-time" datetime="${moment(this._timeFinishEvent).format().slice(0, -9)}">${moment(this._timeFinishEvent).format(`H:mm`)}</time>
+              <time class="event__end-time" datetime="${moment(this._timeStartEvent).format(`YYYY-MM-DDTHH:mm`)}">${moment(this._timeFinishEvent).format(`H:mm`)}</time>
             </p>
             <p class="event__duration">${this._days} ${this._hours} ${this._minutes}</p>
           </div>
@@ -62,3 +64,5 @@ export default class Event extends Abstract {
       </li>`.trim();
   }
 }
+
+export {OFFERS_LIMIT};

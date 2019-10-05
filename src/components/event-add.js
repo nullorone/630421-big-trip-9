@@ -77,15 +77,14 @@ export default class EventAdd extends EventEdit {
             </header>
             
       <section class="event__details">
-
+      
       ${this.getEventOffers(this._offers)}
-
+      
         <section class="event__section  event__section--destination">
         ${this._descriptionEvent || ``}
         ${this._imagesEvent || ``}
         </section>
       </section>
-            
           </form>
   </li>`.trim();
   }

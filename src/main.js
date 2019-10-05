@@ -6,7 +6,6 @@ import Stats from "./components/stats";
 import Api from "./api";
 import ModelEvent from "./model/model-event";
 
-
 const stats = new Stats();
 
 const tripEventsContainer = document.querySelector(`.trip-events`);
