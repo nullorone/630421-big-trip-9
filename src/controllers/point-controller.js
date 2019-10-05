@@ -21,33 +21,36 @@ export default class PointController {
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
     this._api = new Api(apiSettings);
+
     this._apiOffers = null;
+
     this._api.getOffers().then(this._saveOffers.bind(this));
-    this._renderPosition = `beforeend`;
-    this._currentView = this._event;
   }
 
   init(createMode) {
+    let renderPosition = `beforeend`;
+    let currentView = this._event;
+
     if (createMode === Mode.ADDING) {
-      this._renderPosition = `afterbegin`;
-      this._currentView = this._eventAdd;
+      renderPosition = `afterbegin`;
+      currentView = this._eventAdd;
     }
 
     const onEventEditEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
-        if (this._currentView === this._eventEdit) {
-          if (this._container.contains(this._currentView.getElement())) {
-            this._container.replaceChild(this._event.getElement(), this._currentView.getElement());
+        if (currentView === this._eventEdit) {
+          if (this._container.contains(currentView.getElement())) {
+            this._container.replaceChild(this._event.getElement(), currentView.getElement());
           }
         } else if (createMode === Mode.ADDING) {
-          if (this._container.contains(this._currentView.getElement())) {
-            this._container.removeChild(this._currentView.getElement());
+          if (this._container.contains(currentView.getElement())) {
+            this._container.removeChild(currentView.getElement());
           }
           this._onDataChange({newEvent: null, oldEvent: null});
         }
 
-        if (this._currentView.getElement().className.includes(`shake`)) {
-          this._currentView.setStyleErrorEventEdit(false);
+        if (currentView.getElement().className.includes(`shake`)) {
+          currentView.setStyleErrorEventEdit(false);
         }
 
         document.removeEventListener(`keydown`, onEventEditEscKeyDown);
@@ -56,8 +59,8 @@ export default class PointController {
 
     const onEventRollupButtonClick = (evt) => {
       evt.preventDefault();
-      this._renderPosition = `afterbegin`;
-      this._currentView = this._eventEdit;
+      renderPosition = `afterbegin`;
+      currentView = this._eventEdit;
       const tripDays = document.querySelector(`.trip-days`);
 
       if (tripDays.firstElementChild.dataset.eventId === `0`) {
@@ -91,13 +94,13 @@ export default class PointController {
       const typeTitle = target.innerText;
       const typeInput = target.parentElement.querySelector(`.event__type-input`);
       const valueTypeInput = typeInput.value;
-      let eventTypeIconSrc = this._currentView.getElement().querySelector(`.event__type-icon`);
-      let eventTypeOutputTitle = this._currentView.getElement().querySelector(`.event__type-output`);
-      const offerContainer = this._currentView.getElement().querySelector(`.event__section--offers`);
-      const detailsContainer = this._currentView.getElement().querySelector(`.event__details`);
+      let eventTypeIconSrc = currentView.getElement().querySelector(`.event__type-icon`);
+      let eventTypeOutputTitle = currentView.getElement().querySelector(`.event__type-output`);
+      const offerContainer = currentView.getElement().querySelector(`.event__section--offers`);
+      const detailsContainer = currentView.getElement().querySelector(`.event__details`);
       const offersOfType = this._apiOffers.find(({type}) => valueTypeInput === type);
       const newOffers = offersOfType.offers.length > 1 ?
-        createElement(this._currentView.getEventOffers(new Set(offersOfType.offers.slice(0, OFFERS_LIMIT)))) :
+        createElement(currentView.getEventOffers(new Set(offersOfType.offers.slice(0, OFFERS_LIMIT)))) :
         createElement(``);
 
       eventTypeIconSrc.src = `./img/icons/${valueTypeInput}.png`;
@@ -112,7 +115,7 @@ export default class PointController {
         unrenderComponent(offerContainer);
       }
 
-      this._currentView.getElement().querySelector(`.event__type-toggle`).checked = false;
+      currentView.getElement().querySelector(`.event__type-toggle`).checked = false;
     };
 
     const onOffersClick = (evt) => {
@@ -134,18 +137,18 @@ export default class PointController {
 
     const onDestinationChange = (evt) => {
       const city = evt.target.value;
-      const destination = this._currentView.getElement().querySelector(`.event__section-title--destination`);
+      const destination = currentView.getElement().querySelector(`.event__section-title--destination`);
       if (destination) {
         destination.parentElement.innerHTML = ``;
       }
-      this._currentView
+      currentView
         .getElement()
         .querySelector(`.event__section--destination`)
-        .insertAdjacentHTML(`beforeend`, this._currentView.insertDescription(city));
-      this._currentView
+        .insertAdjacentHTML(`beforeend`, currentView.insertDescription(city));
+      currentView
         .getElement()
         .querySelector(`.event__section--destination`)
-        .insertAdjacentHTML(`beforeend`, this._currentView.insertImage(city));
+        .insertAdjacentHTML(`beforeend`, currentView.insertImage(city));
     };
 
     const onFormInput = (evt) => {
@@ -153,10 +156,10 @@ export default class PointController {
         return;
       }
 
-      if (this._currentView.getElement().className.includes(`shake`)) {
-        this._currentView.setStyleErrorEventEdit(false);
+      if (currentView.getElement().className.includes(`shake`)) {
+        currentView.setStyleErrorEventEdit(false);
       } else {
-        this._currentView.getElement()
+        currentView.getElement()
           .querySelector(`form`)
           .removeEventListener(`input`, onFormInput);
       }
@@ -165,57 +168,57 @@ export default class PointController {
     const onSubmit = (evt) => {
       evt.preventDefault();
 
-      this._currentView.changeFormUi(true);
-      this._currentView.changeTextOnButton(`Saving`);
-      this._currentView.getElement()
+      currentView.changeFormUi(true);
+      currentView.changeTextOnButton(`Saving`);
+      currentView.getElement()
         .querySelector(`form`)
         .addEventListener(`input`, onFormInput);
 
-      const formData = new FormData(this._currentView.getElement().querySelector(`.event`));
+      const formData = new FormData(currentView.getElement().querySelector(`.event`));
 
-      const eventImages = [...this._currentView.getElement().querySelectorAll(`.event__photo`)].map((image) => {
+      const eventImages = [...currentView.getElement().querySelectorAll(`.event__photo`)].map((image) => {
         return {
           src: image.src,
           description: image.alt,
         };
       });
 
-      const eventOffers = new Set(Array.from(this._currentView.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
+      const eventOffers = new Set(Array.from(currentView.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
         id: offer.querySelector(`.event__offer-checkbox`).name.slice(INDEX_OFFER_NAME),
         title: offer.querySelector(`.event__offer-title`).innerText,
         price: Number(offer.querySelector(`.event__offer-price`).innerText),
         isChecked: offer.querySelector(`.event__offer-checkbox`).checked,
       })));
 
-      const eventOffersToRaw = Array.from(this._currentView.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
+      const eventOffersToRaw = Array.from(currentView.getElement().querySelectorAll(`.event__offer-selector`)).map((offer) => ({
         title: offer.querySelector(`.event__offer-title`).innerText,
         price: Number(offer.querySelector(`.event__offer-price`).innerText),
         accepted: offer.querySelector(`.event__offer-checkbox`).checked,
       }));
 
       let eventFavorite = false;
-      if (this._currentView === this._eventEdit) {
+      if (currentView === this._eventEdit) {
         eventFavorite = this._eventEdit.getElement().querySelector(`.event__favorite-checkbox`).checked;
       }
 
       const getTypeId = () => {
-        const imgSrc = this._currentView.getElement().querySelector(`.event__type-icon`).src;
+        const imgSrc = currentView.getElement().querySelector(`.event__type-icon`).src;
 
-        return imgSrc.substring(imgSrc.substring(imgSrc.lastIndexOf(`/`) + 1, imgSrc.lastIndexOf(`.`) - 1));
+        return imgSrc.substring(imgSrc.lastIndexOf(`/`) + 1, imgSrc.lastIndexOf(`.`));
       };
-      const eventCity = this._currentView.getElement().querySelector(`.event__input--destination`).value;
-      const eventPrice = this._currentView.getElement().querySelector(`.event__input--price`).value;
+      const eventCity = currentView.getElement().querySelector(`.event__input--destination`).value;
+      const eventPrice = currentView.getElement().querySelector(`.event__input--price`).value;
 
       const entry = {
-        id: this._currentView.getElement().dataset.eventId,
+        id: currentView.getElement().dataset.eventId,
         type: {
           id: getTypeId(),
-          iconSrc: this._currentView.getElement().querySelector(`.event__type-icon`).src,
-          title: this._currentView.getElement().querySelector(`.event__type-output`).innerText,
+          iconSrc: currentView.getElement().querySelector(`.event__type-icon`).src,
+          title: currentView.getElement().querySelector(`.event__type-output`).innerText,
         },
         city: eventCity,
         images: eventImages,
-        description: this._currentView.getElement().querySelector(`.event__destination-description`).innerText,
+        description: currentView.getElement().querySelector(`.event__destination-description`).innerText,
         time: {
           timeStartEvent: Date.parse(formData.get(`event-start-time`)),
           timeFinishEvent: Date.parse(formData.get(`event-end-time`)),
@@ -242,7 +245,7 @@ export default class PointController {
 
       this._onDataChange({
         newEvent: entry,
-        oldEvent: (this._currentView === this._eventEdit) ? this._data : null,
+        oldEvent: (currentView === this._eventEdit) ? this._data : null,
         container: this._container,
         currentEvent: this._event,
         currentView: (createMode === Mode.ADDING) ? this._eventAdd : this._eventEdit,
@@ -294,7 +297,7 @@ export default class PointController {
         .addEventListener(`click`, (evt) => {
           evt.preventDefault();
           if (modeEvent === Mode.ADDING) {
-            this._container.removeChild(this._currentView.getElement());
+            this._container.removeChild(currentView.getElement());
             this._onDataChange(
                 {
                   newEvent: null,
@@ -326,11 +329,11 @@ export default class PointController {
       .querySelector(`#event-favorite-1`)
       .addEventListener(`change`, onSubmit);
 
-    if (this._currentView !== this._event) {
+    if (currentView !== this._event) {
       setListeners(createMode);
     }
 
-    renderComponent(this._container, this._currentView.getElement(), this._renderPosition);
+    renderComponent(this._container, currentView.getElement(), renderPosition);
   }
 
   setDefaultView() {
