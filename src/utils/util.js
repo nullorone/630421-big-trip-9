@@ -80,13 +80,12 @@ const createElement = (template) => {
 const transformTypeEvent = (type) => {
   const transferTitle = types.slice()[0].transfer.find(({id}) => id === type);
   const activityTitle = types.slice()[0].activity.find(({id}) => id === type);
-  switch (true) {
-    case (transferTitle):
-      return transferTitle.title;
-    case (activityTitle):
-      return activityTitle.title;
-    default:
-      return ``;
+  if (transferTitle) {
+    return transferTitle.title;
+  } else if (activityTitle) {
+    return activityTitle.title;
+  } else {
+    return ``;
   }
 };
 
