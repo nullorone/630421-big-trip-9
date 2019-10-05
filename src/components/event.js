@@ -1,7 +1,9 @@
 // Разметка карточки путешествия
 import Abstract from "./abstract";
-import {getDurationTime} from "../utils/util";
+import {getDurationTime, transformTypeEvent} from "../utils/util";
 import moment from "moment";
+
+const OFFERS_LIMIT = 3;
 
 export default class Event extends Abstract {
   constructor(mockEvent) {
@@ -19,12 +21,13 @@ export default class Event extends Abstract {
   }
 
   getEventOffers() {
-    return [...this._offers].slice(0, 2).map(({title: offerTitle, price: offerPrice}) => `
-             <li class="event__offer">
+    return [...this._offers].slice(0, OFFERS_LIMIT).map(({title: offerTitle, price: offerPrice, accepted}) => {
+      return accepted ? `<li class="event__offer">
               <span class="event__offer-title">${offerTitle}</span>
               &plus;
               &euro;&nbsp;<span class="event__offer-price">${offerPrice}</span>
-             </li>`.trim()).join(``);
+             </li>`.trim() : ``;
+    }).join(``);
   }
 
   getTemplate() {
@@ -34,13 +37,13 @@ export default class Event extends Abstract {
           <div class="event__type">
             <img class="event__type-icon" width="42" height="42" src="${this._iconSrc}" alt="Event type icon">
           </div>
-          <h3 class="event__title">${this._title} ${this._city}</h3>
+          <h3 class="event__title">${transformTypeEvent(this._title)} ${this._city}</h3>
 
           <div class="event__schedule">
             <p class="event__time">
-              <time class="event__start-time" datetime="${moment(this._timeStartEvent).format().slice(0, -9)}">${moment(this._timeStartEvent).format(`H:mm`)}</time>
+              <time class="event__start-time" datetime="${moment(this._timeStartEvent).format(`YYYY-MM-DDTHH:mm`)}">${moment(this._timeStartEvent).format(`H:mm`)}</time>
               &mdash;
-              <time class="event__end-time" datetime="${moment(this._timeFinishEvent).format().slice(0, -9)}">${moment(this._timeFinishEvent).format(`H:mm`)}</time>
+              <time class="event__end-time" datetime="${moment(this._timeStartEvent).format(`YYYY-MM-DDTHH:mm`)}">${moment(this._timeFinishEvent).format(`H:mm`)}</time>
             </p>
             <p class="event__duration">${this._days} ${this._hours} ${this._minutes}</p>
           </div>
@@ -61,3 +64,5 @@ export default class Event extends Abstract {
       </li>`.trim();
   }
 }
+
+export {OFFERS_LIMIT};

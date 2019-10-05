@@ -1,20 +1,15 @@
 // Разметка формы редактирования события путешествия
-import {types, apiData} from "../data";
-import Abstract from "./abstract";
+import {types, apiSettings} from "../data";
+import {transformTypeEvent} from "../utils/util";
+import Event from "./event";
 import Api from "../api";
 import flatpickr from "flatpickr";
+import moment from "moment";
 
-export default class EventEdit extends Abstract {
+export default class EventEdit extends Event {
   constructor(mockEvent) {
-    super();
+    super(mockEvent);
     this._id = mockEvent.id;
-    this._iconSrc = mockEvent.type.iconSrc;
-    this._title = mockEvent.type.title;
-    this._price = mockEvent.price;
-    this._city = mockEvent.city;
-    this._offers = mockEvent.offers;
-    this._timeStartEvent = mockEvent.time.timeStartEvent;
-    this._timeFinishEvent = mockEvent.time.timeFinishEvent;
     this._images = mockEvent.images;
     this._description = mockEvent.description;
     this._timeStartEventValueFormat = this.getFormattingTimeValue(this._timeStartEvent);
@@ -23,8 +18,8 @@ export default class EventEdit extends Abstract {
     this._eventEditStartTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-start-time]`), {
       defaultDate: new Date(this._timeStartEvent),
       altInput: true,
-      altFormat: `Y/m/d H:i`,
-      dateFormat: `Y/m/d H:i`,
+      altFormat: `d.m.Y H:i`,
+      dateFormat: `d.m.Y H:i`,
       minDate: new Date(this._timeStartEvent),
       enableTime: true,
       minTime: new Date(this._timeStartEvent).toLocaleTimeString(),
@@ -33,25 +28,23 @@ export default class EventEdit extends Abstract {
     this._eventEditFinishTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-end-time]`), {
       defaultDate: new Date(this._timeFinishEvent),
       altInput: true,
-      altFormat: `Y/m/d H:i`,
-      dateFormat: `Y/m/d H:i`,
+      altFormat: `d.m.Y H:i`,
+      dateFormat: `d.m.Y H:i`,
       minDate: new Date(this._timeFinishEvent),
       enableTime: true,
       minTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
       maxTime: `23:59`,
     });
-    this._api = new Api(apiData);
+    this._api = new Api(apiSettings);
+    this._descriptionInfo = null;
 
-    this._api.getDestinations().then(this.generateDestinations.bind(this));
-  }
+    this._api.getDestinations().then((destinations) => {
+      this._descriptionInfo = this.transformDestinations(destinations);
+      this.generateDestinations(destinations);
+    });
 
-  getEventGroup(nameGroup) {
-    return [...nameGroup].map(({id, title}, index) => `
-              <div class="event__type-item">
-                <input id="event-type-${id}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${id}">
-                <label class="event__type-label  event__type-label--${id}" for="event-type-${id}-${index}">${title}</label>
-              </div>
-              `.trim()).join(``);
+    this._descriptionEvent = this.insertDescription.bind(this);
+    this._imagesEvent = this.insertImage.bind(this);
   }
 
   get eventTransferGroup() {
@@ -64,15 +57,37 @@ export default class EventEdit extends Abstract {
     return this.getEventGroup(activity);
   }
 
+  getEventGroup(nameGroup) {
+    return [...nameGroup].map(({id, title}, index) => `
+              <div class="event__type-item">
+                <input id="event-type-${id}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${id}">
+                <label class="event__type-label  event__type-label--${id}" for="event-type-${id}-${index}">${title}</label>
+              </div>
+              `.trim()).join(``);
+  }
+
+  transformDestinations(destinations) {
+    return destinations.reduce((acc, val) => {
+      const {name} = val;
+      if (!acc[name]) {
+        acc[name] = {};
+      }
+
+      acc[name][`description`] = val.description;
+      acc[name][`pictures`] = val.pictures;
+      return acc;
+    }, {});
+  }
+
   getEventOffers(offers) {
     return offers.size ? `
         <section class="event__section  event__section--offers">
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
   
             <div class="event__available-offers">
-              ${[...offers].slice(0, 2).map(({price, title}, index) => `
+              ${[...offers].map(({price, title, accepted}, index) => `
                <div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${title.toLowerCase().split(` `).join(`-`)}" ${accepted ? `checked` : ``}>
                   <label class="event__offer-label" for="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}">
                     <span class="event__offer-title">${title}</span>
                     &plus;
@@ -83,27 +98,23 @@ export default class EventEdit extends Abstract {
         </section>`.trim() : ``;
   }
 
-  getOffers(offers) {
-    return `
-        <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-  
-            <div class="event__available-offers">
-              ${[...offers].map(({name, price, title}, index) => `
-               <div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${name.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}">
-                  <label class="event__offer-label" for="event-offer-${name.toLowerCase().split(` `).join(`-`)}-${index}">
-                    <span class="event__offer-title">${title}</span>
-                    &plus;
-                    &euro;&nbsp;<span class="event__offer-price">${price}</span>
-                  </label>
-                </div>`.trim()).join(``)}
-            </div>
-        </section>`.trim();
+  getEventImg(images) {
+    return images.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`.trim()).join(``);
   }
 
-  getEventImg() {
-    return this._images.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`.trim()).join(``);
+  insertImage(city) {
+    const images = this._descriptionInfo[city].pictures;
+    return `<div class="event__photos-container">
+            <div class="event__photos-tape">
+            ${this.getEventImg(images)}
+            </div>
+          </div>`.trim();
+  }
+
+  insertDescription(city) {
+    const descriptionText = this._descriptionInfo[city].description;
+    return `<h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${descriptionText}</p>`.trim();
   }
 
   insertDestinationList(destinations) {
@@ -112,14 +123,50 @@ export default class EventEdit extends Abstract {
       .insertAdjacentHTML(`beforeend`, destinations);
   }
 
-  generateDestinations(destinationsData) {
-    const destinationsMarkup = [...destinationsData].map(({name}) => `<option value="${name}"></option>`).join(``);
+  generateDestinations(destinations) {
+    const destinationsMarkup = [...destinations].map(({name}) => `<option value="${name}"></option>`).join(``);
 
     this.insertDestinationList(destinationsMarkup);
   }
 
   getFormattingTimeValue(time) {
-    return `${new Date(time).toLocaleString().slice(0, 10).split(`.`).join(`/`)} ${new Date(time).toTimeString().substr(0, 5)}`;
+    return `${moment(time).format(`DD/MM/YYYY HH:mm`)}`;
+  }
+
+  setStyleErrorEventEdit(state) {
+    if (state) {
+      this.getElement().classList.add(`red-border`);
+      this.getElement().classList.add(`shake`);
+    } else {
+      this.getElement().classList.remove(`red-border`);
+      this.getElement().classList.remove(`shake`);
+    }
+  }
+
+  changeTextOnButton(text) {
+    switch (true) {
+      case (text === `Saving`):
+        this.getElement().querySelector(`.event__save-btn`).innerText = `${text}...`;
+        break;
+      case (text === `Save`):
+        this.getElement().querySelector(`.event__save-btn`).innerText = `${text}`;
+        break;
+      case (text === `Deleting`):
+        this.getElement().querySelector(`.event__reset-btn`).innerText = `${text}...`;
+        break;
+      case (text === `Delete`):
+        this.getElement().querySelector(`.event__reset-btn`).innerText = `${text}`;
+        break;
+    }
+  }
+
+  changeFormUi(stateDisabled) {
+    Array.from(this.getElement().querySelectorAll(`input:not(.flatpickr-input)`)).map((input) => {
+      input.disabled = stateDisabled;
+    });
+    Array.from(this.getElement().querySelectorAll(`button`)).map((button) => {
+      button.disabled = stateDisabled;
+    });
   }
 
   getTemplate() {
@@ -149,7 +196,7 @@ export default class EventEdit extends Abstract {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${this._title}
+            ${transformTypeEvent(this._title)}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
           <datalist id="destination-list-1">
@@ -172,7 +219,7 @@ export default class EventEdit extends Abstract {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._price}">
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" pattern="[0-9]*" value="${this._price}">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -192,18 +239,18 @@ export default class EventEdit extends Abstract {
       </header>
 
       <section class="event__details">
-      
+
       ${this.getEventOffers(this._offers)}
 
         <section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${this._description}</p>
+          ${this._descriptionEvent ? this._descriptionEvent : `<h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${this._description}</p>`.trim()}
 
-          <div class="event__photos-container">
+          ${this._imagesEvent ? this._imagesEvent : `<div class="event__photos-container">
             <div class="event__photos-tape">
-            ${this.getEventImg()}
+            ${this.getEventImg(this._images)}
             </div>
-          </div>
+          </div>`.trim()}
         </section>
       </section>
     </form>

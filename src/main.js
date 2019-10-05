@@ -1,17 +1,28 @@
-import {menuTitles, apiData} from "./data";
+import {apiSettings} from "./data";
 import TripController from "./controllers/trip-controller";
-import {getSortEventList, renderComponent} from "./utils/util";
+import {createElement, getSortEventList, renderComponent, unrenderComponent} from "./utils/util";
 import Menu from "./components/menu";
 import Stats from "./components/stats";
 import Api from "./api";
 import ModelEvent from "./model/model-event";
-
 
 const stats = new Stats();
 
 const tripEventsContainer = document.querySelector(`.trip-events`);
 const tripControls = document.querySelector(`.trip-controls > h2:first-child`);
 const addEventButton = document.querySelector(`.trip-main__event-add-btn`);
+const startingMessage = `<p class="trip-events__msg">Loading...</p>`;
+
+const menuTitles = [
+  {
+    title: `Table`,
+    isActive: true,
+  },
+  {
+    title: `Stats`,
+    isActive: false,
+  }
+];
 
 const tripController = new TripController();
 
@@ -21,6 +32,7 @@ const getSortEvents = (events) => {
 
 const onAddEventButtonClick = (evt) => {
   evt.preventDefault();
+  evt.target.disabled = true;
   tripController.createEvent();
 };
 
@@ -30,14 +42,16 @@ const renderLayout = () => {
   renderComponent(tripControls, menu.getElement());
   renderComponent(tripEventsContainer, stats.getElement(), `afterend`);
   stats.getElement().classList.add(`visually-hidden`);
+  renderComponent(tripEventsContainer, createElement(startingMessage));
 };
 
 renderLayout();
 
-new Api(apiData)
+new Api(apiSettings)
   .getPoints()
   .then(ModelEvent.parseEvents)
   .then((events) => {
+    unrenderComponent(document.querySelector(`.trip-events__msg`));
     tripController.init(getSortEvents(events));
   });
 

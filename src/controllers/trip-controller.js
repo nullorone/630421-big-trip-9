@@ -5,7 +5,7 @@ import Sort from "../components/sort";
 import Days from "../components/days";
 import Stats from "../components/stats";
 import PointController from "./point-controller";
-import {apiData, Mode} from "../data";
+import {apiSettings, Mode} from "../data";
 import Api from "../api";
 import ModelEvent from "../model/model-event";
 import StatsController from "./stats-controller";
@@ -24,7 +24,7 @@ export default class TripController {
     this._onChangeView = this._onChangeView.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
     this._creatingEvent = null;
-    this._api = new Api(apiData);
+    this._api = new Api(apiSettings);
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]
@@ -54,7 +54,18 @@ export default class TripController {
 
   getSumCostTrip(events) {
     const sumCost = document.querySelector(`.trip-info__cost-value`);
-    sumCost.textContent = events.map(({price}) => Number(price)).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+    let cost;
+    const priceOffers = events
+      .map(({offers}) => [...offers])
+      .flat()
+      .reduce((acc, val) => {
+        if (val.accepted) {
+          acc += val.price;
+        }
+        return acc;
+      }, 0);
+    cost = events.map(({price}) => Number(price)).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+    sumCost.innerHTML = cost + priceOffers;
   }
 
   hide() {
@@ -66,18 +77,20 @@ export default class TripController {
   }
 
   createEvent() {
+    this._onChangeView();
     if (this._creatingEvent) {
       return;
     }
 
     const defaultEvent = {
+      id: 0,
       type: {
         id: ``,
         iconSrc: ``,
         title: ``,
       },
       city: ``,
-      img: [],
+      images: [],
       description: ``,
       time: {
         timeStartEvent: new Date(),
@@ -87,8 +100,8 @@ export default class TripController {
       offers: new Set(),
     };
 
-    this._creatingEvent = new PointController(this._days.getElement(), Mode.ADDING, defaultEvent, this._onDataChange, this._onChangeView);
-
+    this._creatingEvent = new PointController(this._days.getElement(), defaultEvent, this._onDataChange, this._onChangeView);
+    this._creatingEvent.init(Mode.ADDING);
   }
 
   renderDays(uniqueEvents) {
@@ -194,40 +207,75 @@ export default class TripController {
     this._subscriptions.forEach((subscription) => subscription());
   }
 
-  _onDataChange(newEvent, oldEvent) {
+  _onDataChange({newEvent, oldEvent, container, currentEvent, currentView, mode}) {
     const indexEvent = this._events.findIndex((event) => event === oldEvent);
     if (newEvent === null && oldEvent === null) {
       this._creatingEvent = null;
+      document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     } else if (newEvent === null) {
-      this._api.deleteEvent(oldEvent).then(() => this._api.getPoints()).then(ModelEvent.parseEvents).then((events) => {
-        this._events = events;
-        this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-        this.renderDays(this._uniqueEvents);
-        this._filterController.init(this._uniqueEvents);
-        this.getSumCostTrip(this._events);
-      });
-    } else if (oldEvent === null) {
+      this._api.deleteEvent(oldEvent)
+        .then(() => this._api.getPoints())
+        .then(ModelEvent.parseEvents)
+        .then((events) => {
+          this._creatingEvent = null;
+          this._events = events;
+          this._runSuccessMethods(currentView);
+        })
+        .catch(() => {
+          this._runErrorMethods(currentView, `Delete`);
+        });
+    } else if (mode === Mode.ADDING) {
       this._creatingEvent = null;
-      this._events = [newEvent, ...this._events].slice().sort(getSortEventList);
-    } else {
-      this._api.updateEvent(newEvent).then((event) => {
-        this._events[indexEvent] = event;
-        this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-        this.renderDays(this._uniqueEvents);
-        this._filterController.init(this._uniqueEvents);
-        this.getSumCostTrip(this._events);
-      });
+      this._api.createEvent(newEvent)
+        .then((event) => {
+          this._events = [event, ...this._events].slice().sort(getSortEventList);
+          this._runSuccessMethods(currentView);
+          container.replaceChild(currentEvent.getElement(), currentView.getElement());
+          document.querySelector(`.trip-main__event-add-btn`).disabled = false;
+        })
+        .catch(() => {
+          this._runErrorMethods(currentView, `Save`);
+        });
+    } else if (mode === Mode.EDIT) {
+      this._api.updateEvent(newEvent)
+        .then((event) => {
+          this._events[indexEvent] = event;
+          this._runSuccessMethods(currentView);
+          container.replaceChild(currentEvent.getElement(), currentView.getElement());
+        }).catch(() => {
+          this._runErrorMethods(currentView, `Save`);
+        });
     }
+  }
 
-    // this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
-    // this.renderDays(this._uniqueEvents);
-    // this._filterController.init(this._uniqueEvents);
-    // this.getSumCostTrip(this._events);
+  _runErrorMethods(view, buttonText) {
+    view.changeFormUi(false);
+    view.changeTextOnButton(buttonText);
+    view.setStyleErrorEventEdit(true);
+  }
+
+  _runSuccessMethods(view) {
+    this._checkShakeState(view);
+    this._rerenderDays();
+  }
+
+  _checkShakeState(view) {
+    if (view.getElement().className.includes(`shake`)) {
+      view.setStyleErrorEventEdit(false);
+    }
+  }
+
+  _rerenderDays() {
+    this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
+    this.renderDays(this._uniqueEvents);
+    this._filterController.init(this._uniqueEvents);
+    this.getSumCostTrip(this._events);
   }
 
   _renderEvents(eventsContainer, eventsDay) {
     eventsDay.forEach((event) => {
-      const pointController = new PointController(eventsContainer, Mode.DEFAULT, event, this._onDataChange, this._onChangeView);
+      const pointController = new PointController(eventsContainer, event, this._onDataChange, this._onChangeView);
+      pointController.init(Mode.DEFAULT);
       this._subscriptions.push(pointController.setDefaultView.bind(pointController));
 
       return pointController;

@@ -3,6 +3,56 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {types} from '../data';
 import moment from "moment";
 
+const MONEY_LAYOUT_PADDING_LEFT = 50;
+const MONEY_DATALABELS_FONT_SIZE = 14;
+const MONEY_YAXES_SCALELABEL_FONT_SIZE = 20;
+const TRANSPORT_LAYOUT_PADDING_LEFT = MONEY_LAYOUT_PADDING_LEFT;
+const TRANSPORT_DATALABELS_FONT_SIZE = MONEY_DATALABELS_FONT_SIZE;
+const TRANSPORT_YAXES_SCALELABEL_FONT_SIZE = MONEY_YAXES_SCALELABEL_FONT_SIZE;
+const TIMESPENT_LAYOUT_PADDING_LEFT = MONEY_LAYOUT_PADDING_LEFT;
+const TIMESPENT_DATALABELS_FONT_SIZE = MONEY_DATALABELS_FONT_SIZE;
+const TIMESPENT_YAXES_SCALELABEL_FONT_SIZE = MONEY_YAXES_SCALELABEL_FONT_SIZE;
+
+const GradientParameters = {
+  X0: 0,
+  Y0: 0,
+  X1: 0,
+  Y1: 900,
+};
+
+const GradientMoneyColorParameters = {
+  START: {
+    OFFSET: 0,
+    COLOR: `rgb(250, 67, 201)`,
+  },
+  FINISH: {
+    OFFSET: 1,
+    COLOR: `rgb(186, 67, 250)`,
+  }
+};
+
+const GradientTransportColorParameters = {
+  START: {
+    OFFSET: 0,
+    COLOR: `rgb(191, 185, 0)`,
+  },
+  FINISH: {
+    OFFSET: 1,
+    COLOR: `rgb(102, 191, 6)`,
+  }
+};
+
+const GradientTimeSpentColorParameters = {
+  START: {
+    OFFSET: 0,
+    COLOR: `rgb(16, 146, 205)`,
+  },
+  FINISH: {
+    OFFSET: 1,
+    COLOR: `rgb(227, 13, 112)`,
+  }
+};
+
 export default class StatsController {
   constructor(container, events) {
     this._events = events;
@@ -12,6 +62,21 @@ export default class StatsController {
     this._timeStats = this._container.querySelector(`.statistics__chart--time`);
 
     this.init();
+  }
+
+  get typeLabels() {
+    return this._events.reduce((acc, value) => {
+
+      const id = value.type.id.toUpperCase();
+
+      if (!acc[id]) {
+        acc[id] = [];
+      }
+
+      acc[id].push(value);
+
+      return acc;
+    }, {});
   }
 
   show() {
@@ -24,9 +89,9 @@ export default class StatsController {
 
   setMoneyStats() {
     const ctx = this._moneyStats.getContext(`2d`);
-    const gradient = ctx.createLinearGradient(0, 0, 0, 900);
-    gradient.addColorStop(0, `rgb(250, 67, 201)`);
-    gradient.addColorStop(1, `rgb(186, 67, 250)`);
+    const gradient = ctx.createLinearGradient(GradientParameters.X0, GradientParameters.Y0, GradientParameters.X1, GradientParameters.Y1);
+    gradient.addColorStop(GradientMoneyColorParameters.START.OFFSET, GradientMoneyColorParameters.START.COLOR);
+    gradient.addColorStop(GradientMoneyColorParameters.FINISH.OFFSET, GradientMoneyColorParameters.FINISH.COLOR);
 
     const getLabelsValues = (sortedEvents) => {
       let eventsResult = [];
@@ -53,14 +118,14 @@ export default class StatsController {
       options: {
         layout: {
           padding: {
-            left: 50,
+            left: MONEY_LAYOUT_PADDING_LEFT,
           }
         },
         plugins: {
           datalabels: {
             color: `black`,
             font: {
-              size: 14,
+              size: MONEY_DATALABELS_FONT_SIZE,
             },
             formatter(value) {
               return `€ ${value}`;
@@ -90,7 +155,7 @@ export default class StatsController {
               display: true,
               labelString: `MONEY`,
               fontColor: `black`,
-              fontSize: 20,
+              fontSize: MONEY_YAXES_SCALELABEL_FONT_SIZE,
             },
           }]
         }
@@ -101,9 +166,9 @@ export default class StatsController {
 
   setTransportStats() {
     const ctx = this._transportStats.getContext(`2d`);
-    const gradient = ctx.createLinearGradient(0, 0, 0, 900);
-    gradient.addColorStop(0, `rgb(191, 185, 0)`);
-    gradient.addColorStop(1, `rgb(102, 191, 6)`);
+    const gradient = ctx.createLinearGradient(GradientParameters.X0, GradientParameters.Y0, GradientParameters.X1, GradientParameters.Y1);
+    gradient.addColorStop(GradientTransportColorParameters.START.OFFSET, GradientTransportColorParameters.START.COLOR);
+    gradient.addColorStop(GradientTransportColorParameters.FINISH.OFFSET, GradientTransportColorParameters.FINISH.COLOR);
 
     let transferMap;
     for (let [, value] of Object.entries(types)) {
@@ -148,14 +213,14 @@ export default class StatsController {
       options: {
         layout: {
           padding: {
-            left: 50,
+            left: TRANSPORT_LAYOUT_PADDING_LEFT,
           }
         },
         plugins: {
           datalabels: {
-            color: `#000000`,
+            color: `black`,
             font: {
-              size: 14,
+              size: TRANSPORT_DATALABELS_FONT_SIZE,
             },
             formatter(value) {
               return `${value}x`;
@@ -185,7 +250,7 @@ export default class StatsController {
               display: true,
               labelString: `TRANSPORT`,
               fontColor: `black`,
-              fontSize: 20,
+              fontSize: TRANSPORT_YAXES_SCALELABEL_FONT_SIZE,
             },
           }]
         }
@@ -196,9 +261,10 @@ export default class StatsController {
 
   setTimeSpentStats() {
     const ctx = this._moneyStats.getContext(`2d`);
-    const gradient = ctx.createLinearGradient(0, 0, 0, 900);
-    gradient.addColorStop(0, `rgb(16, 146, 205)`);
-    gradient.addColorStop(1, `rgb(227, 13, 112)`);
+    const gradient = ctx.createLinearGradient(GradientParameters.X0, GradientParameters.Y0, GradientParameters.X1, GradientParameters.Y1);
+    gradient.addColorStop(GradientTransportColorParameters.START.OFFSET, GradientTransportColorParameters.START.COLOR);
+    gradient.addColorStop(GradientTimeSpentColorParameters.START.OFFSET, GradientTimeSpentColorParameters.START.COLOR);
+    gradient.addColorStop(GradientTimeSpentColorParameters.FINISH.OFFSET, GradientTimeSpentColorParameters.FINISH.COLOR);
 
     const getLabelsValues = (sortedEvents) => {
       let eventsResult = [];
@@ -239,14 +305,14 @@ export default class StatsController {
       options: {
         layout: {
           padding: {
-            left: 50,
+            left: TIMESPENT_LAYOUT_PADDING_LEFT,
           }
         },
         plugins: {
           datalabels: {
             color: `black`,
             font: {
-              size: 14,
+              size: TIMESPENT_DATALABELS_FONT_SIZE,
             },
             formatter(value) {
               return `${getFormatingTime(value).days} ${getFormatingTime(value).hours} ${getFormatingTime(value).minutes}`;
@@ -276,7 +342,7 @@ export default class StatsController {
               display: true,
               labelString: `TIME SPENT`,
               fontColor: `black`,
-              fontSize: 20,
+              fontSize: TIMESPENT_YAXES_SCALELABEL_FONT_SIZE,
             },
           }]
         }
@@ -291,19 +357,6 @@ export default class StatsController {
     this.setTimeSpentStats();
   }
 
-  get typeLabels() {
-    return this._events.reduce((acc, value) => {
 
-      const id = value.type.id.toUpperCase();
-
-      if (!acc[id]) {
-        acc[id] = [];
-      }
-
-      acc[id].push(value);
-
-      return acc;
-    }, {});
-  }
 }
 

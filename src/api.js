@@ -1,16 +1,19 @@
 import ModelEvent from "./model/model-event";
 
+const RESPONSE_STATUS = {
+  SUCCESS: 200,
+  REDIRECTION: 300
+};
+
 const Method = {
   POST: `POST`,
   GET: `GET`,
   DELETE: `DELETE`,
   PUT: `PUT`,
-  PATCH: `PATCH`,
-  HEAD: `HEAD`,
 };
 
 const checkStatus = (response) => {
-  if (response.status >= 200 && response.status < 300) {
+  if (response.status >= RESPONSE_STATUS.SUCCESS && response.status < RESPONSE_STATUS.REDIRECTION) {
     return response;
   } else {
     throw new Error(`${response.status}: ${response.statusText}`);
@@ -31,7 +34,15 @@ export default class Api {
     this._authorization = authorization;
   }
 
-  createEvent({event}) {
+  createEvent(event) {
+    return this._load({
+      url: `points`,
+      method: Method.POST,
+      body: JSON.stringify(event.toRAW),
+      headers: new Headers({'Content-Type': `application/json`})
+    })
+      .then(toJSON)
+      .then(ModelEvent.parseEvent);
   }
 
   getPoints() {

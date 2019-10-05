@@ -1,23 +1,23 @@
-import moment from "moment";
+import DOMPurify from 'dompurify';
 
 export default class ModelEvent {
   constructor(data) {
-    this._id = data.id;
+    this._id = DOMPurify.sanitize(data.id);
     this._type = {
       iconSrc: `./img/icons/${data[`type`]}.png`,
-      id: data.type,
-      title: data.type,
+      id: DOMPurify.sanitize(data.type),
+      title: DOMPurify.sanitize(data.type),
     };
-    this._city = data.destination.name;
+    this._city = DOMPurify.sanitize(data.destination.name);
     this._images = data.destination.pictures;
-    this._description = data.destination.description;
+    this._description = DOMPurify.sanitize(data.destination.description);
     this._time = {
-      timeStartEvent: moment(data.date_from),
-      timeFinishEvent: moment(data.date_to),
+      timeStartEvent: data.date_from,
+      timeFinishEvent: data.date_to,
     };
-    this._price = data[`base_price`];
+    this._price = DOMPurify.sanitize(data[`base_price`]);
     this._offers = new Set(data.offers);
-    this._favorite = data.is_favorite;
+    this._favorite = DOMPurify.sanitize(data.is_favorite);
   }
 
   static parseEvent(data) {
