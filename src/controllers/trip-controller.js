@@ -54,7 +54,18 @@ export default class TripController {
 
   getSumCostTrip(events) {
     const sumCost = document.querySelector(`.trip-info__cost-value`);
-    sumCost.textContent = events.map(({price}) => Number(price)).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+    let cost;
+    const priceOffers = events
+      .map(({offers}) => [...offers])
+      .flat()
+      .reduce((acc, val) => {
+        if (val.accepted) {
+          acc += val.price;
+        }
+        return acc;
+      }, 0);
+    cost = events.map(({price}) => Number(price)).reduce((previousPrice, currentPrice) => previousPrice + currentPrice);
+    sumCost.innerHTML = cost + priceOffers;
   }
 
   hide() {

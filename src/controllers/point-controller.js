@@ -118,6 +118,23 @@ export default class PointController {
       currentView.getElement().querySelector(`.event__type-toggle`).checked = false;
     };
 
+    const onOffersClick = (evt) => {
+      const currentOffer = evt.target;
+      if (!currentOffer.className.includes(`event__offer-checkbox`)) {
+        return;
+      }
+      let sumCost = document.querySelector(`.trip-info__cost-value`);
+      const currentOfferValue = Number(currentOffer.parentElement.querySelector(`.event__offer-price`).innerText);
+      let cost = Number(sumCost.innerText);
+
+      if (currentOffer.checked) {
+        cost = cost + currentOfferValue;
+      } else {
+        cost = cost - currentOfferValue;
+      }
+      sumCost.innerHTML = cost.toString();
+    };
+
     const onDestinationChange = (evt) => {
       const city = evt.target.value;
       const destination = currentView.getElement().querySelector(`.event__section-title--destination`);
@@ -237,6 +254,13 @@ export default class PointController {
 
     const setListeners = (modeEvent) => {
       const typeEvent = modeEvent === Mode.ADDING ? this._eventAdd : this._eventEdit;
+
+      if (typeEvent.getElement()
+        .querySelector(`.event__available-offers`)) {
+        typeEvent.getElement()
+          .querySelector(`.event__available-offers`)
+          .addEventListener(`change`, onOffersClick, true);
+      }
 
       typeEvent.getElement()
         .querySelector(`.event__type-list`)
