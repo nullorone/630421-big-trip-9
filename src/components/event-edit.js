@@ -1,22 +1,15 @@
 // Разметка формы редактирования события путешествия
 import {types, apiSettings} from "../data";
 import {transformTypeEvent} from "../utils/util";
-import Abstract from "./abstract";
+import Event from "./event";
 import Api from "../api";
 import flatpickr from "flatpickr";
 import moment from "moment";
 
-export default class EventEdit extends Abstract {
+export default class EventEdit extends Event {
   constructor(mockEvent) {
-    super();
+    super(mockEvent);
     this._id = mockEvent.id;
-    this._iconSrc = mockEvent.type.iconSrc;
-    this._title = mockEvent.type.title;
-    this._price = mockEvent.price;
-    this._city = mockEvent.city;
-    this._offers = mockEvent.offers;
-    this._timeStartEvent = mockEvent.time.timeStartEvent;
-    this._timeFinishEvent = mockEvent.time.timeFinishEvent;
     this._images = mockEvent.images;
     this._description = mockEvent.description;
     this._timeStartEventValueFormat = this.getFormattingTimeValue(this._timeStartEvent);
@@ -43,15 +36,34 @@ export default class EventEdit extends Abstract {
       maxTime: `23:59`,
     });
     this._api = new Api(apiSettings);
-    this._descriptionData = null;
+    this._descriptionInfo = null;
 
     this._api.getDestinations().then((destinations) => {
-      this._descriptionData = this.transformDestinations(destinations);
+      this._descriptionInfo = this.transformDestinations(destinations);
       this.generateDestinations(destinations);
     });
 
     this._descriptionEvent = this.insertDescription.bind(this);
     this._imagesEvent = this.insertImage.bind(this);
+  }
+
+  get eventTransferGroup() {
+    const [{transfer}] = types;
+    return this.getEventGroup(transfer);
+  }
+
+  get eventActivityGroup() {
+    const [{activity}] = types;
+    return this.getEventGroup(activity);
+  }
+
+  getEventGroup(nameGroup) {
+    return [...nameGroup].map(({id, title}, index) => `
+              <div class="event__type-item">
+                <input id="event-type-${id}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${id}">
+                <label class="event__type-label  event__type-label--${id}" for="event-type-${id}-${index}">${title}</label>
+              </div>
+              `.trim()).join(``);
   }
 
   transformDestinations(destinations) {
@@ -67,25 +79,6 @@ export default class EventEdit extends Abstract {
     }, {});
   }
 
-  getEventGroup(nameGroup) {
-    return [...nameGroup].map(({id, title}, index) => `
-              <div class="event__type-item">
-                <input id="event-type-${id}-${index}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${id}">
-                <label class="event__type-label  event__type-label--${id}" for="event-type-${id}-${index}">${title}</label>
-              </div>
-              `.trim()).join(``);
-  }
-
-  get eventTransferGroup() {
-    const [{transfer}] = types;
-    return this.getEventGroup(transfer);
-  }
-
-  get eventActivityGroup() {
-    const [{activity}] = types;
-    return this.getEventGroup(activity);
-  }
-
   getEventOffers(offers) {
     return offers.size ? `
         <section class="event__section  event__section--offers">
@@ -94,7 +87,7 @@ export default class EventEdit extends Abstract {
             <div class="event__available-offers">
               ${[...offers].map(({price, title, accepted}, index) => `
                <div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}" ${accepted ? `checked` : ``}>
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${title.toLowerCase().split(` `).join(`-`)}" ${accepted ? `checked` : ``}>
                   <label class="event__offer-label" for="event-offer-${title.toLowerCase().split(` `).join(`-`)}-${index}">
                     <span class="event__offer-title">${title}</span>
                     &plus;
@@ -105,31 +98,12 @@ export default class EventEdit extends Abstract {
         </section>`.trim() : ``;
   }
 
-  getOffers(offers) {
-    return `
-        <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-  
-            <div class="event__available-offers">
-              ${[...offers].map(({name, price, title}, index) => `
-               <div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${name.toLowerCase().split(` `).join(`-`)}-${index}" type="checkbox" name="event-offer-${name.toLowerCase().split(` `).join(`-`)}">
-                  <label class="event__offer-label" for="event-offer-${name.toLowerCase().split(` `).join(`-`)}-${index}">
-                    <span class="event__offer-title">${title}</span>
-                    &plus;
-                    &euro;&nbsp;<span class="event__offer-price">${price}</span>
-                  </label>
-                </div>`.trim()).join(``)}
-            </div>
-        </section>`.trim();
-  }
-
   getEventImg(images) {
     return images.map(({src, description}) => `<img class="event__photo" src="${src}" alt="${description}">`.trim()).join(``);
   }
 
   insertImage(city) {
-    const images = this._descriptionData[city].pictures;
+    const images = this._descriptionInfo[city].pictures;
     return `<div class="event__photos-container">
             <div class="event__photos-tape">
             ${this.getEventImg(images)}
@@ -138,7 +112,7 @@ export default class EventEdit extends Abstract {
   }
 
   insertDescription(city) {
-    const descriptionText = this._descriptionData[city].description;
+    const descriptionText = this._descriptionInfo[city].description;
     return `<h3 class="event__section-title  event__section-title--destination">Destination</h3>
           <p class="event__destination-description">${descriptionText}</p>`.trim();
   }
