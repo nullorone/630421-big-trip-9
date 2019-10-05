@@ -1,5 +1,6 @@
 // Разметка формы редактирования события путешествия
 import {types, apiData} from "../data";
+import {transformTypeEvent} from "../utils/util";
 import Abstract from "./abstract";
 import Api from "../api";
 import flatpickr from "flatpickr";
@@ -220,7 +221,7 @@ export default class EventEdit extends Abstract {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${this._title}
+            ${transformTypeEvent(this._title)}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
           <datalist id="destination-list-1">

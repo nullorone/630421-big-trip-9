@@ -12,8 +12,8 @@ export default class ModelEvent {
     this._images = data.destination.pictures;
     this._description = data.destination.description;
     this._time = {
-      timeStartEvent: moment(data.date_from),
-      timeFinishEvent: moment(data.date_to),
+      timeStartEvent: data.date_from,
+      timeFinishEvent: data.date_to,
     };
     this._price = data[`base_price`];
     this._offers = new Set(data.offers);

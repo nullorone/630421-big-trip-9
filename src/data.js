@@ -29,7 +29,7 @@ const API_URL = `https://htmlacademy-es-9.appspot.com/big-trip`;
 
 const apiData = {
   endPoint: API_URL,
-  authorization: `htmlacademy2014`,
+  authorization: `htmlacademy2019`,
 };
 
 const offers = [

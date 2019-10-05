@@ -72,6 +72,7 @@ export default class TripController {
     }
 
     const defaultEvent = {
+      id: 0,
       type: {
         id: ``,
         iconSrc: ``,
@@ -220,19 +221,22 @@ export default class TripController {
           currentView.changeTextOnButton(`Delete`);
           currentView.setStyleErrorEventEdit(true);
         });
-    } else if (oldEvent === null && mode === Mode.ADDING) {
+    } else if (mode === Mode.ADDING) {
       this._creatingEvent = null;
       this._api.createEvent(newEvent)
         .then((event) => {
           if (currentView.getElement().className.includes(`shake`)) {
             currentView.setStyleErrorEventEdit(false);
           }
+          console.log(event)
           this._events = [event, ...this._events].slice().sort(getSortEventList);
           this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
           this.renderDays(this._uniqueEvents);
           this._filterController.init(this._uniqueEvents);
           this.getSumCostTrip(this._events);
           container.replaceChild(currentEvent.getElement(), currentView.getElement());
+
+          document.querySelector(`.trip-main__event-add-btn`).disabled = false;
         })
         .catch(() => {
           currentView.changeFormUi(false);

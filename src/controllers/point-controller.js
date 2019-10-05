@@ -34,14 +34,11 @@ export default class PointController {
     if (createMode === Mode.ADDING) {
       renderPosition = `afterbegin`;
       currentView = this._eventAdd;
-    } else if (createMode === Mode.EDIT) {
-      renderPosition = `afterbegin`;
-      currentView = this._eventEdit;
     }
 
     const onEventEditEscKeyDown = (evt) => {
       if (evt.key === `Escape` || evt.key === `Esc`) {
-        if (createMode === Mode.EDIT) {
+        if (currentView === this._eventEdit) {
           if (this._container.contains(currentView.getElement())) {
             this._container.replaceChild(this._event.getElement(), currentView.getElement());
           }
@@ -64,10 +61,17 @@ export default class PointController {
       evt.preventDefault();
       renderPosition = `afterbegin`;
       currentView = this._eventEdit;
+      const tripDays = document.querySelector(`.trip-days`);
+
+      if (tripDays.firstElementChild.dataset.eventId === `0`) {
+        tripDays.removeChild(tripDays.firstElementChild);
+        this._onDataChange({newEvent: null, oldEvent: null});
+      }
+
+
       this._onChangeView();
-      unrenderComponent(this._event.getElement());
-      const pointController = new PointController(this._container, this._data, this._onDataChange, this._onChangeView);
-      pointController.init(Mode.EDIT);
+      this._container.replaceChild(this._eventEdit.getElement(), this._event.getElement());
+      setListeners(Mode.EDIT);
       document.addEventListener(`keydown`, onEventEditEscKeyDown);
       this._event.getElement().removeEventListener(`click`, onEventRollupButtonClick);
     };
@@ -96,7 +100,7 @@ export default class PointController {
       const detailsContainer = currentView.getElement().querySelector(`.event__details`);
       const offersOfType = this._apiOffers.find(({type}) => valueTypeInput === type);
       const newOffers = offersOfType.offers.length > 1 ?
-        createElement(currentView.getOffers(offersOfType.offers.slice(0, 2))) :
+        createElement(currentView.getOffers(offersOfType.offers.slice(0, 3))) :
         createElement(``);
 
       eventTypeIconSrc.src = `./img/icons/${valueTypeInput}.png`;
@@ -176,7 +180,7 @@ export default class PointController {
       }));
 
       let eventFavorite = false;
-      if (Mode.EDIT) {
+      if (currentView === this._eventEdit) {
         eventFavorite = this._eventEdit.getElement().querySelector(`.event__favorite-checkbox`).checked;
       }
 
@@ -224,11 +228,54 @@ export default class PointController {
 
       this._onDataChange({
         newEvent: entry,
-        oldEvent: (createMode !== Mode.ADDING) ? this._data : null,
+        oldEvent: (currentView === this._eventEdit) ? this._data : null,
         container: this._container,
         currentEvent: this._event,
         currentView: (createMode === Mode.ADDING) ? this._eventAdd : this._eventEdit,
-        mode: createMode});
+        mode: (createMode === Mode.ADDING) ? Mode.ADDING : Mode.EDIT});
+    };
+
+    const setListeners = (modeEvent) => {
+      const typeEvent = modeEvent === Mode.ADDING ? this._eventAdd : this._eventEdit;
+
+      typeEvent.getElement()
+        .querySelector(`.event__type-list`)
+        .addEventListener(`click`, onTypeClick, true);
+
+      typeEvent.getElement()
+        .querySelector(`.event__input--destination`)
+        .addEventListener(`change`, onDestinationChange);
+
+      typeEvent.getElement()
+        .querySelector(`form`)
+        .addEventListener(`input`, onFormInput);
+
+
+      typeEvent.getElement()
+        .querySelector(`form`)
+        .addEventListener(`submit`, onSubmit);
+
+      typeEvent.getElement()
+        .querySelector(`.event__reset-btn`)
+        .addEventListener(`click`, (evt) => {
+          evt.preventDefault();
+          if (modeEvent === Mode.ADDING) {
+            this._container.removeChild(currentView.getElement());
+            this._onDataChange(
+                {
+                  newEvent: null,
+                  oldEvent: null
+                });
+          } else {
+            this._eventEdit.changeTextOnButton(`Deleting`);
+            this._onDataChange(
+                {
+                  newEvent: null,
+                  oldEvent: this._data,
+                  currentView: this._eventEdit
+                });
+          }
+        });
     };
 
     document.addEventListener(`keydown`, onEventEditEscKeyDown);
@@ -241,58 +288,13 @@ export default class PointController {
       .querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, onEventEditRollupButtonClick);
 
-    if (createMode !== Mode.DEFAULT) {
-      currentView.getElement()
-        .querySelector(`.event__type-list`)
-        .addEventListener(`click`, onTypeClick, true);
-
-      currentView.getElement()
-        .querySelector(`.event__input--destination`)
-        .addEventListener(`change`, onDestinationChange);
-
-      currentView.getElement()
-        .querySelector(`form`)
-        .addEventListener(`input`, onFormInput);
-
-      currentView.getElement()
-        .querySelector(`form`)
-        .addEventListener(`submit`, onSubmit);
-
-      // this._eventEdit.getElement()
-      //   .querySelector(`form`)
-      //   .addEventListener(`submit`, onSubmit);
-      //
-      // this._eventAdd.getElement()
-      //   .querySelector(`form`)
-      //   .addEventListener(`submit`, onSubmit);
-
-      currentView.getElement()
-        .querySelector(`.event__reset-btn`)
-        .addEventListener(`click`, (evt) => {
-          evt.preventDefault();
-          if (createMode === Mode.ADDING) {
-            this._container.removeChild(currentView.getElement());
-            this._onDataChange(
-                {
-                  newEvent: null,
-                  oldEvent: null
-                });
-          } else if (createMode === Mode.EDIT) {
-            this._eventEdit.changeTextOnButton(`Deleting`);
-            this._onDataChange(
-                {
-                  newEvent: null,
-                  oldEvent: this._data,
-                  currentView: this._eventEdit
-                });
-          }
-        });
-    }
-
     this._eventEdit.getElement()
       .querySelector(`#event-favorite-1`)
       .addEventListener(`change`, onSubmit);
 
+    if (currentView !== this._event) {
+      setListeners(createMode);
+    }
 
     renderComponent(this._container, currentView.getElement(), renderPosition);
   }

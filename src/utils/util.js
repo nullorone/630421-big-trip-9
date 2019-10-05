@@ -1,4 +1,5 @@
 import moment from "moment";
+import {types} from "../data";
 
 const DAY_IN_WEEK = 7;
 const HOURS_IN_DAY = 24;
@@ -37,8 +38,15 @@ const getShuffleArray = (array) => {
 };
 
 const getDurationTime = (timeStart, timeFinish) => {
-  const diffTime = Math.abs(timeFinish - timeStart);
-  const days = moment.utc(timeFinish).diff(moment.utc(timeStart), `days`);
+  let timeStartEvent = timeStart;
+  let timeFinishEvent = timeFinish;
+
+  if (typeof timeStart === `string`) {
+    timeStartEvent = Number(moment(timeStartEvent).format(`x`));
+    timeFinishEvent = Number(moment(timeFinishEvent).format(`x`));
+  }
+  const diffTime = Math.abs(timeFinishEvent - timeStartEvent);
+  const days = moment.utc(timeFinishEvent).diff(moment.utc(timeStartEvent), `days`);
   const hours = moment.utc(diffTime).format(`H[H]`);
   const minutes = moment.utc(diffTime).format(`mm[M]`);
 
@@ -58,12 +66,28 @@ const getDayTime = () => Date.now() - getRandomNumber(0, DAY_IN_WEEK) * HOURS_IN
 
 const getRandomImage = () => `http://picsum.photos/300/150?r=${Math.random()}`;
 
-const getSortEventList = (a, b) => Date.parse(new Date(a.time.timeStartEvent).toDateString()) - Date.parse(new Date(b.time.timeStartEvent).toDateString());
+const getSortEventList = (a, b) => {
+  return Date.parse(new Date(a.time.timeStartEvent).toDateString()) - Date.parse(new Date(b.time.timeStartEvent).toDateString());
+};
 
 const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
   return newElement.firstElementChild;
+};
+
+
+const transformTypeEvent = (type) => {
+  const transferTitle = types.slice()[0].transfer.find(({id}) => id === type);
+  const activityTitle = types.slice()[0].activity.find(({id}) => id === type);
+  switch (true) {
+    case (transferTitle):
+      return transferTitle.title;
+    case (activityTitle):
+      return activityTitle.title;
+    default:
+      return ``;
+  }
 };
 
 export {
@@ -77,5 +101,6 @@ export {
   getSortEventList,
   createElement,
   getDurationTime,
+  transformTypeEvent
 };
 
