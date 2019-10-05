@@ -1,5 +1,6 @@
 import Filter from "../components/filter";
 import {renderComponent} from "../utils/util";
+import moment from "moment";
 
 const filters = [
   {
@@ -35,11 +36,11 @@ export default class FilterController {
 
       switch (true) {
         case (target.checked && target.value === `future`):
-          const futureEvents = events.slice().filter((event) => event[0].time.timeStartEvent > Date.now());
+          const futureEvents = events.slice().filter((event) => moment(event[0].time.timeStartEvent) > Date.now());
           this._onFilterChange(futureEvents);
           break;
         case (target.checked && target.value === `past`):
-          const pastEvents = events.slice().filter((event) => event[0].time.timeFinishEvent < Date.now());
+          const pastEvents = events.slice().filter((event) => moment(event[0].time.timeFinishEvent) < Date.now());
           this._onFilterChange(pastEvents);
           break;
         default:
