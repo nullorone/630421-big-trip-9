@@ -9,7 +9,6 @@ import Api from "../api";
 import {OFFERS_LIMIT} from "../components/event";
 
 const INDEX_OFFER_NAME = 12;
-const EVEN_DENOMINATOR = 2;
 
 export default class PointController {
   constructor(container, data, onDataChange, onChangeView) {
@@ -266,13 +265,10 @@ export default class PointController {
 
       priceInput.addEventListener(`input`, function (evt) {
         const target = evt.target;
-        if (Number(target.value) % EVEN_DENOMINATOR === 0) {
-          priceInput.valid = false;
-          if (priceInput.checkValidity()) {
-            priceInput.setCustomValidity(`Введите целое число и попробуйте снова`);
-          } else {
-            priceInput.setCustomValidity(``);
-          }
+        if ((Number(target.value) ^ 0) !== Number(target.value)) {
+          priceInput.setCustomValidity(`Введите целое число и попробуйте снова`);
+        } else {
+          priceInput.setCustomValidity(``);
         }
       });
 
