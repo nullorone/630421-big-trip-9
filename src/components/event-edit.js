@@ -4,6 +4,7 @@ import {transformTypeEvent} from "../utils/util";
 import Abstract from "./abstract";
 import Api from "../api";
 import flatpickr from "flatpickr";
+import moment from "moment";
 
 export default class EventEdit extends Abstract {
   constructor(mockEvent) {
@@ -155,7 +156,7 @@ export default class EventEdit extends Abstract {
   }
 
   getFormattingTimeValue(time) {
-    return `${new Date(time).toLocaleString().slice(0, 10).split(`.`).join(`/`)} ${new Date(time).toTimeString().substr(0, 5)}`;
+    return `${moment(time).format(`DD/MM/YYYY HH:mm`)}`;
   }
 
   setStyleErrorEventEdit(state) {
