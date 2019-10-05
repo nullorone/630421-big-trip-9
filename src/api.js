@@ -1,5 +1,10 @@
 import ModelEvent from "./model/model-event";
 
+const RESPONSE_STATUS = {
+  SUCCESS: 200,
+  REDIRECTION: 300
+};
+
 const Method = {
   POST: `POST`,
   GET: `GET`,
@@ -8,7 +13,7 @@ const Method = {
 };
 
 const checkStatus = (response) => {
-  if (response.status >= 200 && response.status < 300) {
+  if (response.status >= RESPONSE_STATUS.SUCCESS && response.status < RESPONSE_STATUS.REDIRECTION) {
     return response;
   } else {
     throw new Error(`${response.status}: ${response.statusText}`);
