@@ -228,7 +228,6 @@ export default class TripController {
           if (currentView.getElement().className.includes(`shake`)) {
             currentView.setStyleErrorEventEdit(false);
           }
-          console.log(event)
           this._events = [event, ...this._events].slice().sort(getSortEventList);
           this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
           this.renderDays(this._uniqueEvents);

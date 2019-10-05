@@ -1,6 +1,6 @@
 // Разметка формы добавления события путешествия
 import {transformTypeEvent} from "../utils/util";
-import EventEdit from "./eventEdit";
+import EventEdit from "./event-edit";
 
 export default class EventAdd extends EventEdit {
   constructor(mockEvent) {

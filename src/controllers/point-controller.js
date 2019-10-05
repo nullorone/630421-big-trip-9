@@ -1,5 +1,5 @@
 import Event from "../components/event";
-import EventEdit from "../components/eventEdit";
+import EventEdit from "../components/event-edit";
 import EventAdd from "../components/event-add";
 import {renderComponent, createElement, unrenderComponent} from "../utils/util";
 import {apiData, Mode} from "../data";
