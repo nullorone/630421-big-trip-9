@@ -1,4 +1,4 @@
-import {menuTitles, apiData} from "./data";
+import {apiSettings} from "./data";
 import TripController from "./controllers/trip-controller";
 import {createElement, getSortEventList, renderComponent, unrenderComponent} from "./utils/util";
 import Menu from "./components/menu";
@@ -13,6 +13,17 @@ const tripEventsContainer = document.querySelector(`.trip-events`);
 const tripControls = document.querySelector(`.trip-controls > h2:first-child`);
 const addEventButton = document.querySelector(`.trip-main__event-add-btn`);
 const startingMessage = `<p class="trip-events__msg">Loading...</p>`;
+
+const menuTitles = [
+  {
+    title: `Table`,
+    isActive: true,
+  },
+  {
+    title: `Stats`,
+    isActive: false,
+  }
+];
 
 const tripController = new TripController();
 
@@ -37,7 +48,7 @@ const renderLayout = () => {
 
 renderLayout();
 
-new Api(apiData)
+new Api(apiSettings)
   .getPoints()
   .then(ModelEvent.parseEvents)
   .then((events) => {

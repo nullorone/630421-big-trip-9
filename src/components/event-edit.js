@@ -1,5 +1,5 @@
 // Разметка формы редактирования события путешествия
-import {types, apiData} from "../data";
+import {types, apiSettings} from "../data";
 import {transformTypeEvent} from "../utils/util";
 import Abstract from "./abstract";
 import Api from "../api";
@@ -41,7 +41,7 @@ export default class EventEdit extends Abstract {
       minTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
       maxTime: `23:59`,
     });
-    this._api = new Api(apiData);
+    this._api = new Api(apiSettings);
     this._descriptionData = null;
 
     this._api.getDestinations().then((destinations) => {
@@ -148,8 +148,8 @@ export default class EventEdit extends Abstract {
       .insertAdjacentHTML(`beforeend`, destinations);
   }
 
-  generateDestinations(destinationsData) {
-    const destinationsMarkup = [...destinationsData].map(({name}) => `<option value="${name}"></option>`).join(``);
+  generateDestinations(destinations) {
+    const destinationsMarkup = [...destinations].map(({name}) => `<option value="${name}"></option>`).join(``);
 
     this.insertDestinationList(destinationsMarkup);
   }

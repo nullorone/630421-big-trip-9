@@ -2,7 +2,7 @@ import Event from "../components/event";
 import EventEdit from "../components/event-edit";
 import EventAdd from "../components/event-add";
 import {renderComponent, createElement, unrenderComponent} from "../utils/util";
-import {apiData, Mode} from "../data";
+import {apiSettings, Mode} from "../data";
 import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/airbnb.css";
 import Api from "../api";
@@ -16,7 +16,7 @@ export default class PointController {
     this._eventAdd = new EventAdd(this._data);
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
-    this._api = new Api(apiData);
+    this._api = new Api(apiSettings);
 
     this._apiOffers = null;
 

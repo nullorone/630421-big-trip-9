@@ -5,7 +5,7 @@ import Sort from "../components/sort";
 import Days from "../components/days";
 import Stats from "../components/stats";
 import PointController from "./point-controller";
-import {apiData, Mode} from "../data";
+import {apiSettings, Mode} from "../data";
 import Api from "../api";
 import ModelEvent from "../model/model-event";
 import StatsController from "./stats-controller";
@@ -24,7 +24,7 @@ export default class TripController {
     this._onChangeView = this._onChangeView.bind(this);
     this._onDataChange = this._onDataChange.bind(this);
     this._creatingEvent = null;
-    this._api = new Api(apiData);
+    this._api = new Api(apiSettings);
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]

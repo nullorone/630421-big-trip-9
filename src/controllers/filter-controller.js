@@ -1,6 +1,20 @@
 import Filter from "../components/filter";
-import {filters} from "../data";
 import {renderComponent} from "../utils/util";
+
+const filters = [
+  {
+    title: `Everything`,
+    isActive: true,
+  },
+  {
+    title: `Future`,
+    isActive: false,
+  },
+  {
+    title: `Past`,
+    isActive: false,
+  }
+];
 
 export default class FilterController {
   constructor(onFilterChange) {
