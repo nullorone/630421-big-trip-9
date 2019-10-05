@@ -207,17 +207,19 @@ export default class PointController {
       };
       const eventCity = currentView.getElement().querySelector(`.event__input--destination`).value;
       const eventPrice = currentView.getElement().querySelector(`.event__input--price`).value;
+      const eventDescription = currentView.getElement().querySelector(`.event__destination-description`);
+      const eventTypeTitle = currentView.getElement().querySelector(`.event__type-output`);
 
       const entry = {
         id: currentView.getElement().dataset.eventId,
         type: {
           id: getTypeId(),
           iconSrc: currentView.getElement().querySelector(`.event__type-icon`).src,
-          title: currentView.getElement().querySelector(`.event__type-output`).innerText,
+          title: eventTypeTitle ? eventTypeTitle.innerText : ``,
         },
         city: eventCity,
         images: eventImages,
-        description: currentView.getElement().querySelector(`.event__destination-description`).innerText,
+        description: eventDescription ? eventDescription.innerText : ``,
         time: {
           timeStartEvent: Date.parse(formData.get(`event-start-time`)),
           timeFinishEvent: Date.parse(formData.get(`event-end-time`)),
