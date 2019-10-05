@@ -24,8 +24,8 @@ export default class EventEdit extends Abstract {
     this._eventEditStartTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-start-time]`), {
       defaultDate: new Date(this._timeStartEvent),
       altInput: true,
-      altFormat: `Y/m/d H:i`,
-      dateFormat: `Y/m/d H:i`,
+      altFormat: `d/m/Y H:i`,
+      dateFormat: `d/m/Y H:i`,
       minDate: new Date(this._timeStartEvent),
       enableTime: true,
       minTime: new Date(this._timeStartEvent).toLocaleTimeString(),
@@ -34,8 +34,8 @@ export default class EventEdit extends Abstract {
     this._eventEditFinishTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-end-time]`), {
       defaultDate: new Date(this._timeFinishEvent),
       altInput: true,
-      altFormat: `Y/m/d H:i`,
-      dateFormat: `Y/m/d H:i`,
+      altFormat: `d/m/Y H:i`,
+      dateFormat: `d/m/Y H:i`,
       minDate: new Date(this._timeFinishEvent),
       enableTime: true,
       minTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
