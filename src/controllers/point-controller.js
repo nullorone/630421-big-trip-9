@@ -262,6 +262,20 @@ export default class PointController {
           .addEventListener(`change`, onOffersClick, true);
       }
 
+      const priceInput = typeEvent.getElement().querySelector(`.event__input--price`);
+
+
+      priceInput.addEventListener(`input`, function (evt) {
+        if (Number(evt.target.value) % 2 === 0) {
+          priceInput.valid = false;
+          if (priceInput.checkValidity()) {
+            priceInput.setCustomValidity(`Введите целое число и попробуйте снова`);
+          } else {
+            priceInput.setCustomValidity(``);
+          }
+        }
+      });
+
       typeEvent.getElement()
         .querySelector(`.event__type-list`)
         .addEventListener(`click`, onTypeClick, true);

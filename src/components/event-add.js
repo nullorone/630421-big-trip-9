@@ -69,7 +69,7 @@ export default class EventAdd extends EventEdit {
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._price}">
+                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" pattern="[0-9]*" value="${this._price}">
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
