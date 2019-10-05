@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 
 export default class ModelEvent {
   constructor(data) {
-    this._id = DOMPurify.sanitize(data.id);
+    this._id = data.id;
     this._type = {
       iconSrc: `./img/icons/${data[`type`]}.png`,
       id: DOMPurify.sanitize(data.type),
@@ -15,7 +15,7 @@ export default class ModelEvent {
       timeStartEvent: data.date_from,
       timeFinishEvent: data.date_to,
     };
-    this._price = DOMPurify.sanitize(data[`base_price`]);
+    this._price = data[`base_price`];
     this._offers = new Set(data.offers);
     this._favorite = DOMPurify.sanitize(data.is_favorite);
   }
