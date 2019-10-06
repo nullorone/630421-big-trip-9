@@ -15,16 +15,6 @@ export default class EventEdit extends Event {
     this._timeStartEventValueFormat = this.getFormattingTimeValue(this._timeStartEvent);
     this._timeFinishEventValueFormat = this.getFormattingTimeValue(this._timeFinishEvent);
     this._favorite = mockEvent.favorite;
-    this._eventEditStartTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-start-time]`), {
-      defaultDate: new Date(this._timeStartEvent),
-      altInput: true,
-      altFormat: `d.m.Y H:i`,
-      dateFormat: `Y-m-dTH:i`,
-      minDate: new Date(this._timeStartEvent),
-      enableTime: true,
-      minTime: new Date(this._timeStartEvent).toLocaleTimeString(),
-      maxTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
-    });
     this._eventEditFinishTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-end-time]`), {
       defaultDate: new Date(this._timeFinishEvent),
       altInput: true,
@@ -35,6 +25,26 @@ export default class EventEdit extends Event {
       minTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
       maxTime: `23:59`,
     });
+    this._eventEditStartTime = flatpickr(this.getElement().querySelector(`.event__input--time[name=event-start-time]`), {
+      defaultDate: new Date(this._timeStartEvent),
+      altInput: true,
+      altFormat: `d.m.Y H:i`,
+      dateFormat: `Y-m-dTH:i`,
+      minDate: new Date(this._timeStartEvent),
+      enableTime: true,
+      minTime: new Date(this._timeStartEvent).toLocaleTimeString(),
+      maxTime: new Date(this._timeFinishEvent).toLocaleTimeString(),
+    });
+    this._eventEditStartTime.set(`onClose`, (selectedTime) => {
+      const newTime = moment(selectedTime[0]).format(`YYYY-MM-DDTHH:mm`);
+      this._eventEditFinishTime.set(`minDate`, newTime);
+    });
+
+    this._eventEditFinishTime.set(`onClose`, (selectedTime) => {
+      const newTime = moment(selectedTime[0]).format(`YYYY-MM-DDTHH:mm`);
+      this._eventEditStartTime.set(`maxDate`, newTime);
+    });
+
     this._api = new Api(apiSettings);
     this._descriptionInfo = null;
 
@@ -219,7 +229,7 @@ export default class EventEdit extends Event {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" pattern="[0-9]*" value="${this._price}">
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._price}">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>

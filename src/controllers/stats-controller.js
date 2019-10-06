@@ -262,7 +262,6 @@ export default class StatsController {
   setTimeSpentStats() {
     const ctx = this._moneyStats.getContext(`2d`);
     const gradient = ctx.createLinearGradient(GradientParameters.X0, GradientParameters.Y0, GradientParameters.X1, GradientParameters.Y1);
-    gradient.addColorStop(GradientTransportColorParameters.START.OFFSET, GradientTransportColorParameters.START.COLOR);
     gradient.addColorStop(GradientTimeSpentColorParameters.START.OFFSET, GradientTimeSpentColorParameters.START.COLOR);
     gradient.addColorStop(GradientTimeSpentColorParameters.FINISH.OFFSET, GradientTimeSpentColorParameters.FINISH.COLOR);
 
@@ -270,7 +269,7 @@ export default class StatsController {
       let eventsResult = [];
       for (let [, value] of Object.entries(sortedEvents)) {
         const sumValue = value.reduce((acc, val) => {
-          const diffTime = Math.abs(val.time.timeFinishEvent - val.time.timeStartEvent);
+          const diffTime = Math.abs(moment(val.time.timeFinishEvent) - moment(val.time.timeStartEvent));
           return acc + diffTime;
         }, 0);
 
@@ -280,7 +279,7 @@ export default class StatsController {
       return eventsResult;
     };
 
-    const getFormatingTime = (time) => {
+    const getFormattingTime = (time) => {
       const days = moment.utc(time).format(`D`);
       const hours = moment.utc(time).format(`H[H]`);
       const minutes = moment.utc(time).format(`mm[M]`);
@@ -315,7 +314,7 @@ export default class StatsController {
               size: TIMESPENT_DATALABELS_FONT_SIZE,
             },
             formatter(value) {
-              return `${getFormatingTime(value).days} ${getFormatingTime(value).hours} ${getFormatingTime(value).minutes}`;
+              return `${getFormattingTime(value).days} ${getFormattingTime(value).hours} ${getFormattingTime(value).minutes}`;
             },
             anchor: `end`,
             align: `right`,

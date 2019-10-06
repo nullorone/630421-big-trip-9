@@ -135,22 +135,43 @@ export default class PointController {
     };
 
     const onDestinationChange = (evt) => {
-      const city = evt.target.value;
+      evt.preventDefault();
+      const target = evt.target;
+      const city = target.value;
       const destination = currentView.getElement().querySelector(`.event__section-title--destination`);
+      const destinationList = currentView.getElement().querySelector(`#destination-list-1`);
+      const destinationOptions = [...destinationList.options].map((option) => option.value);
+      const hasDestination = destinationOptions.some((destinationOption) => city === destinationOption);
+
+      const onDestinationInvalid = () => {
+        evt.preventDefault();
+        target.value = ``;
+        target.removeEventListener(`invalid`, onDestinationInvalid);
+      };
+
+      const insertDestinationInfo = (cityName) => {
+        return `${currentView.insertDescription(cityName)} ${currentView.insertImage(cityName)}`;
+      };
+
+      target.addEventListener(`invalid`, onDestinationInvalid);
+
       if (destination) {
         destination.parentElement.innerHTML = ``;
       }
-      currentView
-        .getElement()
-        .querySelector(`.event__section--destination`)
-        .insertAdjacentHTML(`beforeend`, currentView.insertDescription(city));
-      currentView
-        .getElement()
-        .querySelector(`.event__section--destination`)
-        .insertAdjacentHTML(`beforeend`, currentView.insertImage(city));
+
+      if (hasDestination) {
+        currentView
+          .getElement()
+          .querySelector(`.event__section--destination`)
+          .insertAdjacentHTML(`beforeend`, insertDestinationInfo(city));
+        target.setCustomValidity(``);
+      } else {
+        target.setCustomValidity(`Select a destination from the list.`);
+      }
     };
 
     const onFormInput = (evt) => {
+      evt.preventDefault();
       if (evt.target.tagName !== `INPUT`) {
         return;
       }
@@ -268,7 +289,7 @@ export default class PointController {
       priceInput.addEventListener(`input`, function (evt) {
         const target = evt.target;
         if ((Number(target.value) ^ 0) !== Number(target.value)) {
-          priceInput.setCustomValidity(`Введите целое число и попробуйте снова`);
+          priceInput.setCustomValidity(`Enter an integer and try again`);
         } else {
           priceInput.setCustomValidity(``);
         }
