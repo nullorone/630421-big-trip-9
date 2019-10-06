@@ -32,7 +32,7 @@ export default class TripController {
   getSortedDays(unsortedEvents) {
     return unsortedEvents.reduce((acc, value) => {
 
-      const date = Date.parse(new Date(value.time.timeStartEvent).toDateString());
+      const date = moment(value.time.timeStartEvent).format(`ddd MMM DD YYYY`);
       if (!acc[date]) {
         acc[date] = [];
       }
@@ -229,7 +229,7 @@ export default class TripController {
       this._creatingEvent = null;
       this._api.createEvent(newEvent)
         .then((event) => {
-          this._events = [event, ...this._events].slice().sort(getSortEventList);
+          this._events = [event, ...this._events];
           this._runSuccessMethods(currentView);
           container.replaceChild(currentEvent.getElement(), currentView.getElement());
           document.querySelector(`.trip-main__event-add-btn`).disabled = false;
@@ -242,7 +242,6 @@ export default class TripController {
         .then((event) => {
           this._events[indexEvent] = event;
           this._runSuccessMethods(currentView);
-          container.replaceChild(currentEvent.getElement(), currentView.getElement());
         }).catch(() => {
           this._runErrorMethods(currentView, `Save`);
         });
@@ -267,6 +266,7 @@ export default class TripController {
   }
 
   _rerenderDays() {
+    this._events = this._events.slice().sort(getSortEventList);
     this._uniqueEvents = this.getUniqueEventsList(this.getSortedDays(this._events));
     this.renderDays(this._uniqueEvents);
     this._filterController.init(this._uniqueEvents);
