@@ -58,13 +58,13 @@ export default class EventEdit extends Event {
   }
 
   get eventTransferGroup() {
-    const [{transfer}] = types;
-    return this.getEventGroup(transfer);
+    const [{transfers}] = types;
+    return this.getEventGroup(transfers);
   }
 
   get eventActivityGroup() {
-    const [{activity}] = types;
-    return this.getEventGroup(activity);
+    const [{activities}] = types;
+    return this.getEventGroup(activities);
   }
 
   getEventGroup(nameGroup) {

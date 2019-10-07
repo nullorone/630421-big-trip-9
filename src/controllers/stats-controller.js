@@ -172,7 +172,7 @@ export default class StatsController {
 
     let transferMap;
     for (let [, value] of Object.entries(types)) {
-      transferMap = value.transfer.map((type) => type.id.toUpperCase());
+      transferMap = value.transfers.map((type) => type.id.toUpperCase());
     }
 
     const labels = this._events.reduce((acc, value) => {

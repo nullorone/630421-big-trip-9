@@ -13,7 +13,7 @@ const apiSettings = {
 
 const types = [
   {
-    transfer: [
+    transfers: [
       {
         id: `bus`,
         iconSrc: `./img/icons/bus.png`,
@@ -50,7 +50,7 @@ const types = [
         title: `Transport to`,
       }
     ],
-    activity: [
+    activities: [
       {
         id: `check-in`,
         iconSrc: `./img/icons/check-in.png`,

@@ -45,8 +45,8 @@ const createElement = (template) => {
 
 
 const transformTypeEvent = (type) => {
-  const transferTitle = types.slice()[0].transfer.find(({id}) => id === type);
-  const activityTitle = types.slice()[0].activity.find(({id}) => id === type);
+  const transferTitle = types.slice()[0].transfers.find(({id}) => id === type);
+  const activityTitle = types.slice()[0].activities.find(({id}) => id === type);
   if (transferTitle) {
     return transferTitle.title;
   } else if (activityTitle) {
