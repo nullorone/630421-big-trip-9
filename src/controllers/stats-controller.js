@@ -94,7 +94,7 @@ export default class StatsController {
     gradient.addColorStop(GradientMoneyColorParameters.FINISH.OFFSET, GradientMoneyColorParameters.FINISH.COLOR);
 
     const getLabelsValues = (sortedEvents) => {
-      let eventsResult = [];
+      const eventsResult = [];
       for (let [, value] of Object.entries(sortedEvents)) {
         const sumValue = value.reduce((acc, val) => acc + val.price, 0);
 
@@ -172,7 +172,7 @@ export default class StatsController {
 
     let transferMap;
     for (let [, value] of Object.entries(types)) {
-      transferMap = value.transfer.map((type) => type.id.toUpperCase());
+      transferMap = value.transfers.map((type) => type.id.toUpperCase());
     }
 
     const labels = this._events.reduce((acc, value) => {
@@ -190,7 +190,7 @@ export default class StatsController {
     }, {});
 
     const getLabelsValues = (sortedEvents) => {
-      let eventsResult = [];
+      const eventsResult = [];
       for (let [, value] of Object.entries(sortedEvents)) {
 
         eventsResult.push(value.length);
@@ -266,7 +266,7 @@ export default class StatsController {
     gradient.addColorStop(GradientTimeSpentColorParameters.FINISH.OFFSET, GradientTimeSpentColorParameters.FINISH.COLOR);
 
     const getLabelsValues = (sortedEvents) => {
-      let eventsResult = [];
+      const eventsResult = [];
       for (let [, value] of Object.entries(sortedEvents)) {
         const sumValue = value.reduce((acc, val) => {
           const diffTime = Math.abs(moment(val.time.timeFinishEvent) - moment(val.time.timeStartEvent));
