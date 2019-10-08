@@ -45,8 +45,8 @@ export default class TripController {
 
   // Получаем двумерный массив с евентами
   getUniqueEventsList(sortedEvents) {
-    let eventsResult = [];
-    for (let [, value] of Object.entries(sortedEvents)) {
+    const eventsResult = [];
+    for (const [, value] of Object.entries(sortedEvents)) {
       eventsResult.push(value);
     }
 
