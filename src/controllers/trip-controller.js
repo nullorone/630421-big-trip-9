@@ -11,6 +11,8 @@ import ModelEvent from "../model/model-event";
 import StatsController from "./stats-controller";
 import FilterController from "./filter-controller";
 import moment from "moment";
+import Store from "../store";
+import Provider from "../provider";
 
 export default class TripController {
   constructor() {
@@ -26,6 +28,8 @@ export default class TripController {
     this._onDataChange = this._onDataChange.bind(this);
     this._creatingEvent = null;
     this._api = new Api(apiSettings);
+    this._store = new Store({});
+    this._provider = new Provider({api: this._api, store: this._store});
   }
 
   // Получаем объект с ключом - день:number и значением - евенты:[]
@@ -214,8 +218,8 @@ export default class TripController {
       this._creatingEvent = null;
       document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     } else if (newEvent === null) {
-      this._api.deleteEvent(oldEvent)
-        .then(() => this._api.getPoints())
+      this._provider.deleteEvent(oldEvent)
+        .then(() => this._provider.getPoints())
         .then(ModelEvent.parseEvents)
         .then((events) => {
           this._creatingEvent = null;
@@ -227,7 +231,7 @@ export default class TripController {
         });
     } else if (mode === Mode.ADDING) {
       this._creatingEvent = null;
-      this._api.createEvent(newEvent)
+      this._provider.createEvent(newEvent)
         .then((event) => {
           this._events = [event, ...this._events];
           this._runSuccessMethods(currentView);
@@ -238,7 +242,7 @@ export default class TripController {
           this._runErrorMethods(currentView, `Save`);
         });
     } else if (mode === Mode.EDIT) {
-      this._api.updateEvent(newEvent)
+      this._provider.updateEvent(newEvent)
         .then((event) => {
           this._events[indexEvent] = event;
           this._runSuccessMethods(currentView);

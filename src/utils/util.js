@@ -56,12 +56,17 @@ const transformTypeEvent = (type) => {
   }
 };
 
+const transformObjectToArray = (object) => {
+  return Object.keys(object).map((id) => object[id]);
+};
+
 export {
   renderComponent,
   unrenderComponent,
   getSortEventList,
   createElement,
   getDurationTime,
-  transformTypeEvent
+  transformTypeEvent,
+  transformObjectToArray,
 };
 

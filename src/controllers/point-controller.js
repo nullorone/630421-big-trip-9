@@ -7,6 +7,7 @@ import "flatpickr/dist/flatpickr.min.css";
 import "flatpickr/dist/themes/airbnb.css";
 import Api from "../api";
 import {OFFERS_LIMIT} from "../components/event";
+import Provider from "../provider";
 
 const INDEX_OFFER_NAME = 12;
 
@@ -20,10 +21,11 @@ export default class PointController {
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
     this._api = new Api(apiSettings);
+    this._provider = new Provider({api: this._api});
 
     this._apiOffers = null;
 
-    this._api.getOffers().then(this._saveOffers.bind(this));
+    this._provider.getOffers().then(this._saveOffers.bind(this));
   }
 
   init(createMode) {

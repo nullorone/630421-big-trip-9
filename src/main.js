@@ -5,6 +5,10 @@ import Menu from "./components/menu";
 import Stats from "./components/stats";
 import Api from "./api";
 import ModelEvent from "./model/model-event";
+import Provider from "./provider";
+import Store from "./store";
+
+const EVENTS_STORE_KEY = `events-store-key`;
 
 const stats = new Stats();
 
@@ -25,6 +29,9 @@ const menuTitles = [
 ];
 
 const tripController = new TripController();
+const api = new Api(apiSettings);
+const store = new Store({keyStorage: EVENTS_STORE_KEY, storage: window.localStorage});
+const provider = new Provider({api, store});
 
 const getSortEvents = (events) => {
   return events.slice().sort(getSortEventList);
@@ -45,9 +52,25 @@ const renderLayout = () => {
   renderComponent(tripEventsContainer, createElement(startingMessage));
 };
 
+const onSyncWindowOnline = () => {
+  provider.syncPoints();
+  document.title = document.title.split(`[OFFLINE]`)[0];
+};
+
+const onSyncWindowOffline = () => {
+  document.title = `[OFFLINE]`;
+  // window.removeEventListener(`online`, onSyncWindowOnline);
+};
+
+console.log(`Мы сейчас online: ${window.navigator.onLine}`);
+
+window.addEventListener(`online`, onSyncWindowOnline);
+
+window.addEventListener(`offline`, onSyncWindowOffline);
+
 renderLayout();
 
-new Api(apiSettings)
+provider
   .getPoints()
   .then(ModelEvent.parseEvents)
   .then((events) => {

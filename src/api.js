@@ -73,6 +73,15 @@ export default class Api {
     }).then(toJSON).then(ModelEvent.parseEvent);
   }
 
+  syncPoints({events}) {
+    return this._load({
+      url: `points/sync`,
+      method: Method.POST,
+      body: JSON.stringify(events.toRAW),
+      headers: new Headers({'Content-Type': `application/json`})
+    }).then(toJSON).then(ModelEvent.parseEvents);
+  }
+
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, `Basic ${this._authorization}`);
 
@@ -81,4 +90,6 @@ export default class Api {
       .catch(throwError);
   }
 }
+
+export {RESPONSE_STATUS, Method};
 
