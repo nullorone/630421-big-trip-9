@@ -95,7 +95,7 @@ export default class StatsController {
 
     const getLabelsValues = (sortedEvents) => {
       const eventsResult = [];
-      for (let [, value] of Object.entries(sortedEvents)) {
+      for (const [, value] of Object.entries(sortedEvents)) {
         const sumValue = value.reduce((acc, val) => acc + val.price, 0);
 
         eventsResult.push(sumValue);
@@ -171,7 +171,7 @@ export default class StatsController {
     gradient.addColorStop(GradientTransportColorParameters.FINISH.OFFSET, GradientTransportColorParameters.FINISH.COLOR);
 
     let transferMap;
-    for (let [, value] of Object.entries(types)) {
+    for (const [, value] of Object.entries(types)) {
       transferMap = value.transfers.map((type) => type.id.toUpperCase());
     }
 
@@ -191,7 +191,7 @@ export default class StatsController {
 
     const getLabelsValues = (sortedEvents) => {
       const eventsResult = [];
-      for (let [, value] of Object.entries(sortedEvents)) {
+      for (const [, value] of Object.entries(sortedEvents)) {
 
         eventsResult.push(value.length);
       }
@@ -267,7 +267,7 @@ export default class StatsController {
 
     const getLabelsValues = (sortedEvents) => {
       const eventsResult = [];
-      for (let [, value] of Object.entries(sortedEvents)) {
+      for (const [, value] of Object.entries(sortedEvents)) {
         const sumValue = value.reduce((acc, val) => {
           const diffTime = Math.abs(moment(val.time.timeFinishEvent) - moment(val.time.timeStartEvent));
           return acc + diffTime;

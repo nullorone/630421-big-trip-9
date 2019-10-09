@@ -93,8 +93,8 @@ export default class PointController {
       const typeTitle = target.innerText;
       const typeInput = target.parentElement.querySelector(`.event__type-input`);
       const valueTypeInput = typeInput.value;
-      let eventTypeIconSrc = currentView.getElement().querySelector(`.event__type-icon`);
-      let eventTypeOutputTitle = currentView.getElement().querySelector(`.event__type-output`);
+      const eventTypeIconSrc = currentView.getElement().querySelector(`.event__type-icon`);
+      const eventTypeOutputTitle = currentView.getElement().querySelector(`.event__type-output`);
       const offerContainer = currentView.getElement().querySelector(`.event__section--offers`);
       const detailsContainer = currentView.getElement().querySelector(`.event__details`);
       const offersOfType = this._apiOffers.find(({type}) => valueTypeInput === type);
@@ -122,7 +122,7 @@ export default class PointController {
       if (!currentOffer.className.includes(`event__offer-checkbox`)) {
         return;
       }
-      let sumCost = document.querySelector(`.trip-info__cost-value`);
+      const sumCost = document.querySelector(`.trip-info__cost-value`);
       const currentOfferValue = Number(currentOffer.parentElement.querySelector(`.event__offer-price`).innerText);
       let cost = Number(sumCost.innerText);
 
