@@ -46,6 +46,7 @@ export default class EventEdit extends Event {
     });
 
     this._api = new Api(apiSettings);
+
     this._descriptionInfo = null;
 
     this._api.getDestinations().then((destinations) => {

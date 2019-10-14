@@ -80,3 +80,5 @@ provider
 
 addEventButton.addEventListener(`click`, onAddEventButtonClick);
 
+export {EVENTS_STORE_KEY};
+

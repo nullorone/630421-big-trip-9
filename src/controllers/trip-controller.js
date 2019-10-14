@@ -13,6 +13,7 @@ import FilterController from "./filter-controller";
 import moment from "moment";
 import Store from "../store";
 import Provider from "../provider";
+import {EVENTS_STORE_KEY} from "../main";
 
 export default class TripController {
   constructor() {
@@ -28,7 +29,7 @@ export default class TripController {
     this._onDataChange = this._onDataChange.bind(this);
     this._creatingEvent = null;
     this._api = new Api(apiSettings);
-    this._store = new Store({});
+    this._store = new Store({keyStorage: EVENTS_STORE_KEY, storage: window.localStorage});
     this._provider = new Provider({api: this._api, store: this._store});
   }
 
@@ -219,12 +220,14 @@ export default class TripController {
       document.querySelector(`.trip-main__event-add-btn`).disabled = false;
     } else if (newEvent === null) {
       this._provider.deleteEvent(oldEvent)
-        .then(() => this._provider.getPoints())
-        .then(ModelEvent.parseEvents)
-        .then((events) => {
-          this._creatingEvent = null;
-          this._events = events;
-          this._runSuccessMethods(currentView);
+        .then(() => {
+          this._provider.getPoints()
+            .then((events) => {
+              console.log(events)
+              this._creatingEvent = null;
+              this._events = events;
+              this._runSuccessMethods(currentView);
+            });
         })
         .catch(() => {
           this._runErrorMethods(currentView, `Delete`);

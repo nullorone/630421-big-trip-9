@@ -70,6 +70,10 @@ export default class Provider {
     return this._api.getOffers();
   }
 
+  getDestinations() {
+    return this._api.getDestinations();
+  }
+
   _saveEvent(event) {
     this._store.setItem({key: event.id, item: event});
   }

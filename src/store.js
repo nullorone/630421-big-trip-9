@@ -2,7 +2,6 @@ export default class Store {
   constructor({keyStorage, storage}) {
     this._keyStorage = keyStorage;
     this._storage = storage;
-
   }
 
   setItem({key, item}) {
@@ -16,7 +15,7 @@ export default class Store {
     const items = this.getAll();
     delete items[key];
 
-    this._storage.set(this._keyStorage, JSON.stringify(items));
+    this._storage.setItem(this._keyStorage, JSON.stringify(items));
   }
 
   getItem({key}) {
